@@ -1,15 +1,12 @@
 package com.friendoye.rss_reader.activities;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.database.Cursor;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
@@ -19,7 +16,7 @@ import com.friendoye.rss_reader.loaders.RssFeedLoader;
  * or any error will occur.
  */
 public class WelcomeActivity extends FragmentActivity
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements LoaderManager.LoaderCallbacks<Boolean> {
     private ProgressBar mProgressBar;
 
     @Override
@@ -34,18 +31,20 @@ public class WelcomeActivity extends FragmentActivity
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         mProgressBar.setVisibility(View.VISIBLE);
         // TODO: Source might be custom
         return new RssFeedLoader(this, "http://www.onliner.by/feed");
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Toast.makeText(this, "RSS feed downloading completed.", Toast.LENGTH_LONG).show();
+    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+        Intent startIntent = new Intent(this, RssFeedActivity.class);
+        startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(startIntent);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<Boolean> loader) {
     }
 }
