@@ -1,6 +1,5 @@
 package com.friendoye.rss_reader.parsers;
 
-import android.app.DatePickerDialog;
 import android.util.Log;
 import android.util.Xml;
 
@@ -11,7 +10,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,13 +36,16 @@ public class RssParser {
         }
     }
 
+    /**
+     * Return reversed list of RssFeedItem from XML.
+     */
     protected static List<RssFeedItem> reedItems(XmlPullParser parser)
             throws XmlPullParserException, IOException {
-        List<RssFeedItem> items = new LinkedList<>();
+        LinkedList<RssFeedItem> items = new LinkedList<>();
 
         parser.require(XmlPullParser.START_TAG, null, "rss");
         while (skipUntil(parser, "item")) {
-            items.add(reedItem(parser));
+            items.addFirst(reedItem(parser));
         }
 
         return items;
@@ -60,21 +61,21 @@ public class RssParser {
             }
             String tagName = parser.getName();
             switch (tagName) {
-            case "title":
-                item.title = readTitle(parser);
-                break;
-            case "link":
-                item.link = readLink(parser);
-                break;
-            case "pubDate":
-                item.publicationDate = readDate(parser);
-                break;
-            case "thumbnail":
-                item.imageUrl = readImageUrl(parser);
-                break;
-            default:
-                skipCurrentTag(parser);
-                break;
+                case "title":
+                    item.title = readTitle(parser);
+                    break;
+                case "link":
+                    item.link = readLink(parser);
+                    break;
+                case "pubDate":
+                    item.publicationDate = readDate(parser);
+                    break;
+                case "thumbnail":
+                    item.imageUrl = readImageUrl(parser);
+                    break;
+                default:
+                    skipCurrentTag(parser);
+                    break;
             }
         }
 
@@ -103,9 +104,9 @@ public class RssParser {
         String stringDate = readText(parser);
         Date date;
         try {
-            SimpleDateFormat formatter =
-                    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",
-                                         Locale.ENGLISH);
+            final SimpleDateFormat formatter =
+                    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss",
+                            Locale.ENGLISH);
             date = formatter.parse(stringDate);
         } catch (ParseException e) {
             Log.i(PARSE_EXCEPTION_TAG,

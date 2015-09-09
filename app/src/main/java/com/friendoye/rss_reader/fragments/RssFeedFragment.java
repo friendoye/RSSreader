@@ -11,17 +11,21 @@ import android.widget.BaseAdapter;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
+import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.RssFeedItemViewHolder;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Fragment for displaying list with RSS feed items.
  */
 public class RssFeedFragment extends ListFragment {
+    private RssItemAdapter mAdapter;
 
     public RssFeedFragment() {
     }
@@ -33,20 +37,15 @@ public class RssFeedFragment extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        // TODO: Set up better access to db
-        Context appContext = getActivity().getApplicationContext();
-        DatabaseHelper db_helper = OpenHelperManager
-                .getHelper(appContext, DatabaseHelper.class);
-        List<RssFeedItem> items = db_helper.getAllFeedItems();
-        OpenHelperManager.releaseHelper();
-        db_helper = null;
-
-        RssItemAdapter adapter = new RssItemAdapter();
-        adapter.setItems(items);
-        setListAdapter(adapter);
+        mAdapter = new RssItemAdapter();
+        setListAdapter(mAdapter);
+    }
+    
+    public void setFeedItems(List<RssFeedItem> items) {
+        mAdapter.setItems(items);
     }
 
     private class RssItemAdapter extends BaseAdapter {
@@ -92,7 +91,10 @@ public class RssFeedFragment extends ListFragment {
             // TODO: Place code with UIL
             //holder.imageView.setImageBitmap();
             holder.titleView.setText(item.title);
-            holder.dateView.setText(item.publicationDate.toString());
+
+            final SimpleDateFormat formatter =
+                    new SimpleDateFormat("dd.MM.yyyy HH:mm", new Locale("ru"));
+            holder.dateView.setText(formatter.format(item.publicationDate));
 
             return convertView;
         }

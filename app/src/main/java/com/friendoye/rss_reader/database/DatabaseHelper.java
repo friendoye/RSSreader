@@ -10,13 +10,11 @@ import com.friendoye.rss_reader.model.RssFeedItem;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Helper class for executing operation on database.
@@ -65,11 +63,19 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     public void addFeedItems(@NonNull List<RssFeedItem> items) {
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
-        RssFeedItem firstItem = getFirstItem(dao);
+        RssFeedItem lastItem = getFirstItem(dao);
+        // If given list has database last item, then we should add
+        // only items, that come after. Otherwise, add all items.
+        boolean matchLast = false;
         for (RssFeedItem item : items) {
-            if (item.equals(firstItem)) {
-                break;
-            } else {
+            if (item.equals(lastItem)) {
+                matchLast = true;
+            } else if (matchLast) {
+                dao.create(item);
+            }
+        }
+        if (!matchLast) {
+            for (RssFeedItem item : items) {
                 dao.create(item);
             }
         }
@@ -85,8 +91,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     protected <T extends Object, ID extends Object>
             T getFirstItem(RuntimeExceptionDao<T, ID> dao) {
         try {
-            PreparedQuery<T> constructedQuery
-                    = dao.queryBuilder().orderBy("ID", true).prepare();
+            PreparedQuery<T> constructedQuery = dao.queryBuilder()
+                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .prepare();
             return dao.queryForFirst(constructedQuery);
         } catch (SQLException e) {
             Log.i(SQL_EXCEPTION_TAG,
@@ -97,6 +104,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     public List<RssFeedItem> getAllFeedItems() {
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
-        return dao.queryForAll();
+        try {
+            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
+                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .prepare();
+            return dao.query(constructedQuery);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

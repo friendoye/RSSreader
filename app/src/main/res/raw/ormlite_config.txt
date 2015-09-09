@@ -1,5 +1,5 @@
 #
-# generated on 2015/09/09 01:05:28
+# generated on 2015/09/09 05:16:01
 #
 # --table-start--
 dataClass=com.friendoye.rss_reader.model.RssFeedItem
@@ -11,13 +11,17 @@ generatedId=true
 # --field-end--
 # --field-start--
 fieldName=title
+canBeNull=false
 indexName=feeds_title_idx
 # --field-end--
 # --field-start--
 fieldName=link
+canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=publicationDate
+columnName=pub_date
+canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=imageUrl

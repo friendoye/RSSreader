@@ -10,13 +10,15 @@ import java.util.Date;
  */
 @DatabaseTable(tableName = "feeds")
 public class RssFeedItem {
+    public static final String PUB_DATE_KEY = "pub_date";
+
     @DatabaseField(generatedId = true)
     public int id;
-    @DatabaseField(index = true)
+    @DatabaseField(canBeNull = false)
     public String title;
-    @DatabaseField
+    @DatabaseField(canBeNull = false)
     public String link;
-    @DatabaseField
+    @DatabaseField(columnName = PUB_DATE_KEY, canBeNull = false)
     public Date publicationDate;
     @DatabaseField
     public String imageUrl;

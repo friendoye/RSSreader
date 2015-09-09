@@ -9,7 +9,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.friendoye.rss_reader.R;
+import com.friendoye.rss_reader.database.DatabaseHelper;
+import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 /**
  * Launcher splashscreen activity, that shows up until RSS feed won't be retrieved
@@ -38,19 +41,22 @@ public class WelcomeActivity extends FragmentActivity
                 // TODO: Source might be custom
                 return new RssFeedLoader(this, "http://www.onliner.by/feed");
             default:
-                throw new RuntimeException("There's no loader with gived id.");
+                throw new RuntimeException("There's no loader with given id.");
         }
     }
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
-        Intent startIntent = new Intent(this, RssFeedActivity.class);
-        startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(startIntent);
+        if (success) {
+            Intent startIntent = new Intent(this, RssFeedActivity.class);
+            startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(startIntent);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {
+        // Do nothing.
     }
 }

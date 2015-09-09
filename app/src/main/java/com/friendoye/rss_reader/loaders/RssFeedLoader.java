@@ -5,6 +5,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.friendoye.rss_reader.database.DatabaseHelper;
+import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.parsers.RssParser;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -47,13 +48,11 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
             InputStream rssStream = getRssStream();
             items = RssParser.parse(rssStream);
             if (items.size() != 0) {
-                Context appContext = getContext().getApplicationContext();
-                // TODO: Set up better access to db
-                DatabaseHelper db_helper = OpenHelperManager
-                        .getHelper(appContext, DatabaseHelper.class);
-                db_helper.addFeedItems(items);
-                OpenHelperManager.releaseHelper();
-                db_helper = null;
+                DatabaseHelper databaseHelper = DatabaseManager
+                        .getHelper(this.getContext(), DatabaseHelper.class);
+                databaseHelper.addFeedItems(items);
+                DatabaseManager.releaseHelper();
+                databaseHelper = null;
                 return true;
             }
         } catch (IOException e) {
