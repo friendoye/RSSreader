@@ -92,7 +92,7 @@ public class RssFeedFragment extends ListFragment {
             // TODO: Place code with UIL
             //holder.imageView.setImageBitmap();
             holder.titleView.setText(item.title);
-            holder.dateView.setText(item.publicationDate);
+            holder.dateView.setText(item.publicationDate.toString());
 
             return convertView;
         }

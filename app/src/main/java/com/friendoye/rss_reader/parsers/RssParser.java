@@ -1,5 +1,7 @@
 package com.friendoye.rss_reader.parsers;
 
+import android.app.DatePickerDialog;
+import android.util.Log;
 import android.util.Xml;
 
 import com.friendoye.rss_reader.model.RssFeedItem;
@@ -9,13 +11,20 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Helper class for parsing XML RSS stream.
  */
 public class RssParser {
+    public static final String PARSE_EXCEPTION_TAG = "ParseException";
+
     // TODO: Maintain compatibility not only with "http://www.onliner.by/feed"
     public static List<RssFeedItem> parse(InputStream input)
             throws XmlPullParserException, IOException {
@@ -44,27 +53,32 @@ public class RssParser {
     protected static RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "item");
-        //RssFeedItem item = new RssFeedItem();
-        String title = new String(), link = new String(), publicationDate = new String(), imageUrl = new String();
+        RssFeedItem item = new RssFeedItem();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String tagName = parser.getName();
-            if (tagName.equals("title")) {
-                title = readTitle(parser);
-            } else if (tagName.equals("link")) {
-                link = readLink(parser);
-            } else if (tagName.equals("pubDate")) {
-                publicationDate = readDate(parser);
-            } else if (tagName.equals("thumbnail")) {
-                imageUrl = readImageUrl(parser);
-            } else {
+            switch (tagName) {
+            case "title":
+                item.title = readTitle(parser);
+                break;
+            case "link":
+                item.link = readLink(parser);
+                break;
+            case "pubDate":
+                item.publicationDate = readDate(parser);
+                break;
+            case "thumbnail":
+                item.imageUrl = readImageUrl(parser);
+                break;
+            default:
                 skipCurrentTag(parser);
+                break;
             }
         }
 
-        return new RssFeedItem(title, link, publicationDate, imageUrl);
+        return item;
     }
 
     protected static String readTitle(XmlPullParser parser)
@@ -83,10 +97,21 @@ public class RssParser {
         return link;
     }
 
-    protected static String readDate(XmlPullParser parser)
+    protected static Date readDate(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "pubDate");
-        String date = readText(parser);
+        String stringDate = readText(parser);
+        Date date;
+        try {
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",
+                                         Locale.ENGLISH);
+            date = formatter.parse(stringDate);
+        } catch (ParseException e) {
+            Log.i(PARSE_EXCEPTION_TAG,
+                    "readDate(): invalid parser. Info: " + e);
+            date = null;
+        }
         parser.require(XmlPullParser.END_TAG, null, "pubDate");
         return date;
     }

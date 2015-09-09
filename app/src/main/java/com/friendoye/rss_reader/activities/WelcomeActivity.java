@@ -33,14 +33,20 @@ public class WelcomeActivity extends FragmentActivity
     @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         mProgressBar.setVisibility(View.VISIBLE);
-        // TODO: Source might be custom
-        return new RssFeedLoader(this, "http://www.onliner.by/feed");
+        switch (id) {
+            case R.id.rss_feed_loader:
+                // TODO: Source might be custom
+                return new RssFeedLoader(this, "http://www.onliner.by/feed");
+            default:
+                throw new RuntimeException("There's no loader with gived id.");
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         Intent startIntent = new Intent(this, RssFeedActivity.class);
-        startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(startIntent);
     }
 
