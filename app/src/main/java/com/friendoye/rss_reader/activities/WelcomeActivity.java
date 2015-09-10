@@ -1,6 +1,9 @@
 package com.friendoye.rss_reader.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -9,10 +12,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.friendoye.rss_reader.R;
-import com.friendoye.rss_reader.database.DatabaseHelper;
-import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 /**
  * Launcher splashscreen activity, that shows up until RSS feed won't be retrieved
@@ -30,7 +30,12 @@ public class WelcomeActivity extends FragmentActivity
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        getSupportLoaderManager().initLoader(R.id.rss_feed_loader, null, this);
+        if(activeNetworkConnection()) {
+            getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
+                    null, this);
+        } else {
+
+        }
     }
 
     @Override
@@ -43,6 +48,13 @@ public class WelcomeActivity extends FragmentActivity
             default:
                 throw new RuntimeException("There's no loader with given id.");
         }
+    }
+
+    private boolean activeNetworkConnection() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override

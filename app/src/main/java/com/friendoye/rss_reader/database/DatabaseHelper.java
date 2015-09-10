@@ -55,12 +55,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    @Override
-    public void close() {
-        super.close();
-        mRuntimeDao = null;
-    }
-
     public void addFeedItems(@NonNull List<RssFeedItem> items) {
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
         RssFeedItem lastItem = getFirstItem(dao);
@@ -78,6 +72,23 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             for (RssFeedItem item : items) {
                 dao.create(item);
             }
+        }
+    }
+
+    public RssFeedItem getFeedItem(int id) {
+        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
+        return dao.queryForId(id);
+    }
+
+    public List<RssFeedItem> getAllFeedItems() {
+        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
+        try {
+            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
+                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .prepare();
+            return dao.query(constructedQuery);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -102,15 +113,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return null;
     }
 
-    public List<RssFeedItem> getAllFeedItems() {
-        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
-        try {
-            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
-                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
-                    .prepare();
-            return dao.query(constructedQuery);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void close() {
+        super.close();
+        mRuntimeDao = null;
     }
 }

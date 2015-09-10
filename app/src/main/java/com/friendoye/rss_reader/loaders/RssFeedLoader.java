@@ -8,7 +8,6 @@ import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.parsers.RssParser;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 import org.xmlpull.v1.XmlPullParserException;
 

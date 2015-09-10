@@ -8,13 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 
 import com.friendoye.rss_reader.R;
-import com.friendoye.rss_reader.database.DatabaseHelper;
-import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.RssFeedItemViewHolder;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,9 +24,26 @@ import java.util.Locale;
  * Fragment for displaying list with RSS feed items.
  */
 public class RssFeedFragment extends ListFragment {
+    private OnItemSelectedListener mCallback;
+
     private RssItemAdapter mAdapter;
 
+    public interface OnItemSelectedListener {
+        void onItemSelected(RssFeedItem item);
+    }
+
     public RssFeedFragment() {
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (OnItemSelectedListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must " +
+                    "implement OnItemSelectedListener!");
+        }
     }
 
     @Override
@@ -43,7 +59,16 @@ public class RssFeedFragment extends ListFragment {
         mAdapter = new RssItemAdapter();
         setListAdapter(mAdapter);
     }
-    
+
+    @Override
+    public void onListItemClick(ListView parent, View view,
+                                int position, long id) {
+        RssFeedItem item = (RssFeedItem)
+                parent.getItemAtPosition(position);
+        mCallback.onItemSelected(item);
+    }
+
+
     public void setFeedItems(List<RssFeedItem> items) {
         mAdapter.setItems(items);
     }
@@ -70,6 +95,12 @@ public class RssFeedFragment extends ListFragment {
             return mItems.get(position).hashCode();
         }
 
+        @Override
+        public boolean isEnabled(int position)
+        {
+            return true;
+        }
+
         public void setItems(@NonNull List<RssFeedItem> items) {
             mItems = items;
             notifyDataSetChanged();
@@ -89,7 +120,9 @@ public class RssFeedFragment extends ListFragment {
 
             RssFeedItem item = mItems.get(position);
             // TODO: Place code with UIL
-            //holder.imageView.setImageBitmap();
+            ImageLoader.getInstance().displayImage(item.imageUrl,
+                                                   holder.imageView);
+
             holder.titleView.setText(item.title);
 
             final SimpleDateFormat formatter =

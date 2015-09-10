@@ -23,6 +23,8 @@ public class RssFeedItem {
     @DatabaseField
     public String imageUrl;
 
+    public String description;
+
     public RssFeedItem() {
     }
 

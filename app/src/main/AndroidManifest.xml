@@ -7,6 +7,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".Application"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -14,8 +15,8 @@
         <activity
             android:name=".activities.WelcomeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/FullscreenTheme"
-            android:noHistory="true" >
+            android:noHistory="true"
+            android:theme="@style/FullscreenTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,6 +27,17 @@
         <activity
             android:name=".activities.RssFeedActivity"
             android:label="@string/title_activity_rss_feed" >
+        </activity>
+
+        <activity
+            android:name=".activities.DetailsActivity"
+            android:label="@string/title_activity_details"
+            android:parentActivityName=".activities.RssFeedActivity" >
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.friendoye.rss_reader.activities.RssFeedActivity" />
+
         </activity>
 
     </application>
