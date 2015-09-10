@@ -1,6 +1,6 @@
 package com.friendoye.rss_reader.fragments;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
@@ -36,7 +36,7 @@ public class RssFeedFragment extends ListFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Activity context) {
         super.onAttach(context);
         try {
             mCallback = (OnItemSelectedListener) context;

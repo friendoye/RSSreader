@@ -35,6 +35,8 @@ public class DetailsFragment extends Fragment {
     }
 
     public void updateViews(RssFeedItem item) {
-        mDescriptionView.setText(item.description);
+        if (item.description != null) {
+            mDescriptionView.setText(item.description);
+        }
     }
 }

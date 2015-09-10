@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
 
@@ -18,7 +18,7 @@ import com.friendoye.rss_reader.loaders.RssFeedLoader;
  * Launcher splashscreen activity, that shows up until RSS feed won't be retrieved
  * or any error will occur.
  */
-public class WelcomeActivity extends FragmentActivity
+public class WelcomeActivity extends SherlockFragmentActivity
         implements LoaderManager.LoaderCallbacks<Boolean> {
     private ProgressBar mProgressBar;
 
@@ -34,7 +34,7 @@ public class WelcomeActivity extends FragmentActivity
             getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
                     null, this);
         } else {
-
+            // TODO: Print error and suggest to try again
         }
     }
 

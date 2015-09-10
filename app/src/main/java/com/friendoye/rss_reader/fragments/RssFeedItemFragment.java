@@ -1,6 +1,6 @@
 package com.friendoye.rss_reader.fragments;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,7 +34,7 @@ public class RssFeedItemFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Activity context) {
         super.onAttach(context);
         try {
             mCallback = (OnDownloadCompletedListener) context;
@@ -106,8 +106,8 @@ public class RssFeedItemFragment extends Fragment {
                     for (Element paragraph : textBlock.getElementsByTag("p")) {
                         if (paragraph.hasText()) {
                             Elements childParagraphs = paragraph.children();
-                            if (childParagraphs.size() == 1 &&!childParagraphs.hasText()
-                                    && childParagraphs.get(0).tagName().equals("a")) {
+                            if (childParagraphs.size() == 1
+                                    && paragraph.ownText().equals("")) {
                                 // Do nothing, ignore such tags
                             } else {
                                 buffer.append(paragraph.text()).append("\n");

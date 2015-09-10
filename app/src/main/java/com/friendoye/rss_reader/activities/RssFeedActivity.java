@@ -2,10 +2,8 @@ package com.friendoye.rss_reader.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
@@ -15,7 +13,7 @@ import com.friendoye.rss_reader.model.RssFeedItem;
 /**
  * This activity holds RssFeedFragment.
  */
-public class RssFeedActivity extends AppCompatActivity
+public class RssFeedActivity extends SherlockFragmentActivity
         implements  RssFeedFragment.OnItemSelectedListener {
     private DatabaseHelper mDatabaseHelper;
     private RssFeedFragment mFeedFragment;
@@ -36,27 +34,10 @@ public class RssFeedActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_rss_feed, menu);
-        return true;
-    }
-
-    @Override
     public void onItemSelected(RssFeedItem item) {
         Intent startIntent = new Intent(this, DetailsActivity.class);
         startIntent.putExtra(DetailsActivity.ID_KEY, item.id);
         startActivity(startIntent);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
