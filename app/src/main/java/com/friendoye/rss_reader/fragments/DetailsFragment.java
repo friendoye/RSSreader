@@ -1,5 +1,6 @@
 package com.friendoye.rss_reader.fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.model.RssFeedItem;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * Fragment for displaying full info about news.
@@ -17,6 +19,8 @@ import com.friendoye.rss_reader.model.RssFeedItem;
 public class DetailsFragment extends Fragment {
     private ImageView mImageView;
     private TextView mDescriptionView;
+
+    private RssFeedItem mData;
 
     public DetailsFragment() {
     }
@@ -31,12 +35,27 @@ public class DetailsFragment extends Fragment {
         mDescriptionView = (TextView) rootView
                 .findViewById(R.id.descriptionView);
 
+        updateViews();
+
         return rootView;
     }
 
-    public void updateViews(RssFeedItem item) {
-        if (item.description != null) {
-            mDescriptionView.setText(item.description);
+    public void setData(RssFeedItem item) {
+        mData = item;
+        updateViews();
+    }
+
+    protected void updateViews() {
+        if (mData == null) {
+            return;
+        }
+        if (mDescriptionView != null) {
+            mDescriptionView.setText(mData.description);
+        }
+        if (mImageView != null) {
+            Bitmap imageBitmap = ImageLoader.getInstance()
+                    .loadImageSync(mData.imageUrl);
+            mImageView.setImageBitmap(imageBitmap);
         }
     }
 }

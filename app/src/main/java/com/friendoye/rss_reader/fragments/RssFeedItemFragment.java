@@ -53,7 +53,7 @@ public class RssFeedItemFragment extends Fragment {
         mData = data;
     }
 
-    public void downloadDescription() {
+    public void downloadFullInfo() {
         if (mData != null) {
             RetrieveDescriptionTask task =
                     new RetrieveDescriptionTask(mData.link);
@@ -61,10 +61,12 @@ public class RssFeedItemFragment extends Fragment {
         }
     }
 
-    protected void onDownloadComplete(String description) {
-        if (description != null) {
+    protected void onDownloadComplete(String description,
+                                      String detailedImageLink) {
+        if (description != null && detailedImageLink != null) {
             if (mData != null) {
                 mData.description = description;
+                mData.imageUrl = detailedImageLink;
             }
             mCallback.onDownloadSuccess();
         } else {
@@ -82,7 +84,7 @@ public class RssFeedItemFragment extends Fragment {
         mCallback = null;
     }
 
-    private class RetrieveDescriptionTask extends AsyncTask<Void, Void, String> {
+    private class RetrieveDescriptionTask extends AsyncTask<Void, Void, String[]> {
         private String mLink;
 
         public RetrieveDescriptionTask(String link) {
@@ -93,41 +95,64 @@ public class RssFeedItemFragment extends Fragment {
          * TODO: Should work not only with "Onliner".
          */
         @Override
-        protected String doInBackground(Void... params) {
+        protected String[] doInBackground(Void... params) {
+            String[] results = null;
             try {
                 Document doc = Jsoup.connect(mLink).get();
-                Elements blocks =
-                        doc.select("div[class=\"b-posts-1-item__text\"]");
-
-                String description = null;
-                if (blocks.size() != 0) {
-                    Element textBlock = blocks.get(0);
-                    StringBuilder buffer = new StringBuilder();
-                    for (Element paragraph : textBlock.getElementsByTag("p")) {
-                        if (paragraph.hasText()) {
-                            Elements childParagraphs = paragraph.children();
-                            if (childParagraphs.size() == 1
-                                    && paragraph.ownText().equals("")) {
-                                // Do nothing, ignore such tags
-                            } else {
-                                buffer.append(paragraph.text()).append("\n");
-                            }
-                        }
-                    }
-                    description = buffer.toString();
-                }
-
-                return description;
+                results = new String[2];
+                results[0] = retrieveDescription(doc);
+                results[1] = retrieveImageLink(doc);
             } catch (IOException e) {
                 Log.i(IO_EXCEPTION_TAG,
                         "doInBackground(): connection problems. Info: " + e);
             }
-            return null;
+            return results;
+        }
+
+        private String retrieveDescription(Document doc)
+                throws RuntimeException {
+            StringBuilder buffer = new StringBuilder();
+            Elements blocks =
+                    doc.select("div[class=\"b-posts-1-item__text\"]");
+            try {
+                Element textBlock = blocks.get(0);
+                for (Element paragraph : textBlock.getElementsByTag("p")) {
+                    if (paragraph.hasText()) {
+                        Elements childParagraphs = paragraph.children();
+                        if (childParagraphs.size() == 1
+                                && paragraph.ownText().equals("")) {
+                            // Do nothing, ignore such tags
+                        } else {
+                            buffer.append(paragraph.text()).append("\n");
+                        }
+                    }
+                }
+                return buffer.toString();
+            } catch (NullPointerException e) {
+                throw new RuntimeException("No tag was found. Info: " + e);
+            }
+        }
+
+        private String retrieveImageLink(Document doc)
+                throws RuntimeException {
+            Elements blocks =
+                    doc.select("figure[class=\"b-posts-1-item__image\"]");
+            try {
+                Elements imageBlock = blocks.get(0).getElementsByTag("img");
+                String imageLink = imageBlock.get(0).attr("src");
+                if (imageLink != null) {
+                    return imageLink;
+                } else {
+                    throw new RuntimeException("No link in tag!");
+                }
+            } catch (NullPointerException e) {
+                throw new RuntimeException("No tag was found. Info: " + e);
+            }
         }
 
         @Override
-        protected void onPostExecute(String string) {
-            onDownloadComplete(string);
+        protected void onPostExecute(String[] results) {
+            onDownloadComplete(results[0], results[1]);
         }
     }
 

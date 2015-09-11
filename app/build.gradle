@@ -21,10 +21,11 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile ('com.actionbarsherlock:actionbarsherlock:4.4.0@aar') {
+    compile('com.actionbarsherlock:actionbarsherlock:4.4.0@aar') {
         exclude module: 'support-v4'
     }
-    compile 'com.android.support:support-v4:22.2.0' // starting 23.0.0 you'll have a trouble, mister
+    // starting 23.0.0 you'll have a trouble, mister
+    compile 'com.android.support:support-v4:22.2.0'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'org.jsoup:jsoup:1.8.3'
