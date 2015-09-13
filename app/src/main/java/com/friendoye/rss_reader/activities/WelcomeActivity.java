@@ -43,8 +43,10 @@ public class WelcomeActivity extends SherlockFragmentActivity
         mProgressBar.setVisibility(View.VISIBLE);
         switch (id) {
             case R.id.rss_feed_loader:
-                // TODO: Source might be custom
-                return new RssFeedLoader(this, "http://www.onliner.by/feed");
+                // TODO: Inject dependency with preferences
+                final String[] sources = getResources()
+                        .getStringArray(R.array.rss_sources_array);
+                return new RssFeedLoader(this, sources);
             default:
                 throw new RuntimeException("There's no loader with given id.");
         }

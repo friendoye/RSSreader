@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.model.RssFeedItem;
+import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.RssFeedItemViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -68,6 +69,12 @@ public class RssFeedFragment extends ListFragment {
         mCallback.onItemSelected(item);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
+
 
     public void setFeedItems(List<RssFeedItem> items) {
         mAdapter.setItems(items);
@@ -119,15 +126,11 @@ public class RssFeedFragment extends ListFragment {
             }
 
             RssFeedItem item = mItems.get(position);
-            // TODO: Place code with UIL
             ImageLoader.getInstance().displayImage(item.imageUrl,
                                                    holder.imageView);
-
             holder.titleView.setText(item.title);
-
-            final SimpleDateFormat formatter =
-                    new SimpleDateFormat("dd.MM.yyyy HH:mm", new Locale("ru"));
-            holder.dateView.setText(formatter.format(item.publicationDate));
+            holder.dateView.setText(Config.dateFormatter
+                    .format(item.publicationDate));
 
             return convertView;
         }

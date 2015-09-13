@@ -2,5 +2,6 @@
 
     <style name="TextAppearance.Body1" parent="android:TextAppearance.Material.Body1" />
     <style name="TextAppearance.Caption" parent="android:TextAppearance.Material.Caption" />
+    <style name="TextAppearance.Title" parent="android:TextAppearance.Material.Title" />
 
 </resources>

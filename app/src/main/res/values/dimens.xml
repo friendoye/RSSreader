@@ -5,4 +5,7 @@
     <!-- Dimens for view_rss_feed_item -->
     <dimen name="image_width">120dp</dimen>
     <dimen name="space_between_text_and_image">20dp</dimen>
+    <!-- Dimens for view_rss_feed_item -->
+    <dimen name="image_height">120dp</dimen>
+    <dimen name="image_margin">8dp</dimen>
 </resources>

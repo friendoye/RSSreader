@@ -19,4 +19,8 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="TextAppearance.Title" parent="android:TextAppearance.Large">
+        <item name="android:textSize">20sp</item>
+    </style>
+
 </resources>

@@ -1,5 +1,7 @@
 package com.friendoye.rss_reader.model;
 
+import android.graphics.Bitmap;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -22,7 +24,10 @@ public class RssFeedItem {
     public Date publicationDate;
     @DatabaseField
     public String imageUrl;
+    @DatabaseField
+    public String source;
 
+    public Bitmap largeImage;
     public String description;
 
     public RssFeedItem() {

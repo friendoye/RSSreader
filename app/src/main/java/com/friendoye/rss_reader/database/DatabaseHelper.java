@@ -28,8 +28,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private RuntimeExceptionDao<RssFeedItem, Integer> mRuntimeDao = null;
 
     public DatabaseHelper(Context context) {
+        // Use R.raw.ormlite_config
         super(context, DATABASE_NAME, null,
-                DATABASE_VERSION, R.raw.ormlite_config);
+                DATABASE_VERSION);
     }
 
     @Override

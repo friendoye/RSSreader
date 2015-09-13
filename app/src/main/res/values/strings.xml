@@ -2,11 +2,15 @@
     <string name="app_name">RSS Reader</string>
 
     <string name="welcome_text">Welcome</string>
-    <string name="title_activity_rss_feed">RssFeedActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_details">DetailsActivity</string>
+    <string name="title_activity_rss_feed">RSS Feed</string>
+    <string name="title_activity_details">News</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_text">Bus and car collision. No one was injured</string>
+    <string name="pub_date_text">22.07.2014 14:08</string>
+    <string name="description_text">Description</string>
+
+    <string-array name="rss_sources_array">
+        <item>http://www.onliner.by/feed</item>
+    </string-array>
+
 </resources>

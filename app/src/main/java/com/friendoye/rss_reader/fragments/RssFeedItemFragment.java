@@ -1,12 +1,19 @@
 package com.friendoye.rss_reader.fragments;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.friendoye.rss_reader.model.RssFeedItem;
+import com.friendoye.rss_reader.parsers.RssParser;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,6 +29,7 @@ public class RssFeedItemFragment extends Fragment {
     public static final String IO_EXCEPTION_TAG = "IOException";
 
     private OnDownloadCompletedListener mCallback;
+    private RetrieveDescriptionTask mTask;
 
     private RssFeedItem mData;
 
@@ -49,24 +57,29 @@ public class RssFeedItemFragment extends Fragment {
         setRetainInstance(true);
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return null;
+    }
+
     public void setItem(RssFeedItem data) {
         mData = data;
     }
 
     public void downloadFullInfo() {
         if (mData != null) {
-            RetrieveDescriptionTask task =
-                    new RetrieveDescriptionTask(mData.link);
-            task.execute();
+            RssParser parser = RssParser.getInstance(mData.source);
+            mTask = new RetrieveDescriptionTask(mData.link, parser);
+            mTask.execute();
         }
     }
 
     protected void onDownloadComplete(String description,
-                                      String detailedImageLink) {
-        if (description != null && detailedImageLink != null) {
+                                      Bitmap largeImage) {
+        if (description != null && largeImage != null) {
             if (mData != null) {
                 mData.description = description;
-                mData.imageUrl = detailedImageLink;
+                mData.largeImage = largeImage;
             }
             mCallback.onDownloadSuccess();
         } else {
@@ -84,24 +97,23 @@ public class RssFeedItemFragment extends Fragment {
         mCallback = null;
     }
 
-    private class RetrieveDescriptionTask extends AsyncTask<Void, Void, String[]> {
+    private class RetrieveDescriptionTask extends AsyncTask<Void, Void, Object[]> {
         private String mLink;
+        private RssParser mParser;
 
-        public RetrieveDescriptionTask(String link) {
+        public RetrieveDescriptionTask(String link, RssParser parser) {
             mLink = link;
+            mParser = parser;
         }
 
-        /**
-         * TODO: Should work not only with "Onliner".
-         */
         @Override
-        protected String[] doInBackground(Void... params) {
-            String[] results = null;
+        protected Object[] doInBackground(Void... params) {
+            Object[] results = null;
             try {
                 Document doc = Jsoup.connect(mLink).get();
-                results = new String[2];
-                results[0] = retrieveDescription(doc);
-                results[1] = retrieveImageLink(doc);
+                results = new Object[2];
+                results[0] = mParser.retrieveDescription(doc);
+                results[1] = mParser.retrieveLargeImage(doc);
             } catch (IOException e) {
                 Log.i(IO_EXCEPTION_TAG,
                         "doInBackground(): connection problems. Info: " + e);
@@ -109,50 +121,14 @@ public class RssFeedItemFragment extends Fragment {
             return results;
         }
 
-        private String retrieveDescription(Document doc)
-                throws RuntimeException {
-            StringBuilder buffer = new StringBuilder();
-            Elements blocks =
-                    doc.select("div[class=\"b-posts-1-item__text\"]");
-            try {
-                Element textBlock = blocks.get(0);
-                for (Element paragraph : textBlock.getElementsByTag("p")) {
-                    if (paragraph.hasText()) {
-                        Elements childParagraphs = paragraph.children();
-                        if (childParagraphs.size() == 1
-                                && paragraph.ownText().equals("")) {
-                            // Do nothing, ignore such tags
-                        } else {
-                            buffer.append(paragraph.text()).append("\n");
-                        }
-                    }
-                }
-                return buffer.toString();
-            } catch (NullPointerException e) {
-                throw new RuntimeException("No tag was found. Info: " + e);
-            }
-        }
-
-        private String retrieveImageLink(Document doc)
-                throws RuntimeException {
-            Elements blocks =
-                    doc.select("figure[class=\"b-posts-1-item__image\"]");
-            try {
-                Elements imageBlock = blocks.get(0).getElementsByTag("img");
-                String imageLink = imageBlock.get(0).attr("src");
-                if (imageLink != null) {
-                    return imageLink;
-                } else {
-                    throw new RuntimeException("No link in tag!");
-                }
-            } catch (NullPointerException e) {
-                throw new RuntimeException("No tag was found. Info: " + e);
-            }
-        }
-
         @Override
-        protected void onPostExecute(String[] results) {
-            onDownloadComplete(results[0], results[1]);
+        protected void onPostExecute(Object[] results) {
+            if (results != null) {
+                onDownloadComplete((String) results[0],
+                                   (Bitmap) results[1]);
+            } else {
+                onDownloadComplete(null, null);
+            }
         }
     }
 

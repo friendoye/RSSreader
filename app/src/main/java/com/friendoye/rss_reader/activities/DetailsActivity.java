@@ -20,7 +20,8 @@ import com.friendoye.rss_reader.utils.LoadingState;
  * This activity holds DetailsFragment.
  */
 public class DetailsActivity extends SherlockFragmentActivity
-        implements RssFeedItemFragment.OnDownloadCompletedListener {
+        implements RssFeedItemFragment.OnDownloadCompletedListener,
+        ProgressFragment.OnRetryListener {
     public static final String ID_KEY = "id key";
     private static final String STATE_KEY = "state key";
     private static final String VIEW_FRAGMENT_TAG = "view tag";
@@ -33,7 +34,7 @@ public class DetailsActivity extends SherlockFragmentActivity
     private RssFeedItemFragment mDataFragment;
     private DatabaseHelper mDatabaseHelper;
 
-    private LoadingState state;
+    private LoadingState mState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +51,17 @@ public class DetailsActivity extends SherlockFragmentActivity
             if (id != -1) {
                 RssFeedItem item = mDatabaseHelper.getFeedItem(id);
                 mDataFragment.setItem(item);
-                setState(LoadingState.LOADING);
+                mState = LoadingState.LOADING;
             } else {
                 throw new RuntimeException("There's no news to show!");
             }
         } else {
             String stateString = savedInstanceState.getString(STATE_KEY);
-            state = LoadingState.valueOf(stateString);
+            mState = LoadingState.valueOf(stateString);
         }
+
+        setState(mState);
+        mViewFragment.setData(mDataFragment.getItem());
     }
 
     private void initFragments() {
@@ -105,7 +109,13 @@ public class DetailsActivity extends SherlockFragmentActivity
         setState(LoadingState.FAILURE);
     }
 
+    @Override
+    public void onRetry() {
+        setState(LoadingState.LOADING);
+    }
+
     protected void setState(LoadingState state) {
+        mState = state;
         switch (state) {
             case LOADING:
                 setForegroundFragment(mProgressFragment, PROGRESS_FRAGMENT_TAG);
@@ -115,6 +125,9 @@ public class DetailsActivity extends SherlockFragmentActivity
                 setForegroundFragment(mViewFragment, VIEW_FRAGMENT_TAG);
                 RssFeedItem item = mDataFragment.getItem();
                 mViewFragment.setData(item);
+                break;
+            case FAILURE:
+                mProgressFragment.setState(LoadingState.FAILURE);
                 break;
         }
     }
@@ -127,8 +140,11 @@ public class DetailsActivity extends SherlockFragmentActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        if (outState == null) {
+            outState = new Bundle();
+        }
+        outState.putString(STATE_KEY, mState.toString());
         super.onSaveInstanceState(outState);
-        outState.putString(STATE_KEY, state.toString());
     }
 
     @Override

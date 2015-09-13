@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
+import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
@@ -24,11 +25,11 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
     public static final String IO_EXCEPTION_TAG = "IOException";
     public static final String NOT_IO_EXCEPTION_TAG = "Exception";
 
-    private final String mSource;
+    private final String[] mSources;
 
-    public RssFeedLoader(Context context, String source) {
+    public RssFeedLoader(Context context, String[] sources) {
         super(context);
-        mSource = source;
+        mSources = sources;
     }
 
     @Override
@@ -44,16 +45,17 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
     public Boolean loadInBackground() {
         List<RssFeedItem> items = null;
         try {
-            InputStream rssStream = getRssStream();
-            items = RssParser.parse(rssStream);
-            if (items.size() != 0) {
-                DatabaseHelper databaseHelper = DatabaseManager
-                        .getHelper(this.getContext(), DatabaseHelper.class);
-                databaseHelper.addFeedItems(items);
-                DatabaseManager.releaseHelper();
-                databaseHelper = null;
-                return true;
+            DatabaseHelper databaseHelper = DatabaseManager
+                    .getHelper(this.getContext(), DatabaseHelper.class);
+            for (String source: mSources) {
+                InputStream rssStream = getRssStream(source);
+                items = RssParser.getInstance(source).parseRssStream(rssStream);
+                if (items.size() != 0) {
+                    databaseHelper.addFeedItems(items);
+                    return true;
+                }
             }
+            DatabaseManager.releaseHelper();
         } catch (IOException e) {
             Log.e(IO_EXCEPTION_TAG,
                     "loadInBackground(): problems at parsing. Info: " + e);
@@ -65,11 +67,11 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
         return false;
     }
 
-    protected InputStream getRssStream() {
+    protected InputStream getRssStream(String source) {
         InputStream networkStream = null;
         try {
             HttpURLConnection conn = (HttpURLConnection)
-                    new URL(mSource).openConnection();
+                    new URL(source).openConnection();
 
             conn.setReadTimeout(5000);
             conn.setConnectTimeout(5000);
