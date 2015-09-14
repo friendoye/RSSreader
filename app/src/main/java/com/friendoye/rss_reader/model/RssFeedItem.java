@@ -37,10 +37,7 @@ public class RssFeedItem {
     public boolean equals(Object obj) {
         if (obj instanceof RssFeedItem) {
             RssFeedItem item = (RssFeedItem) obj;
-            return title.equals(item.title)
-                    && link.equals(item.link)
-                    && publicationDate.equals(item.publicationDate)
-                    && imageUrl.equals(item.imageUrl);
+            return link.equals(item.link);
         } else {
             return false;
         }

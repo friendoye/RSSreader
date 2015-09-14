@@ -63,9 +63,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         // only items, that come after. Otherwise, add all items.
         boolean matchLast = false;
         for (RssFeedItem item : items) {
+            if (matchLast) {
+                dao.create(item);
+                continue;
+            }
             if (item.equals(lastItem)) {
                 matchLast = true;
-            } else if (matchLast) {
+                dao.delete(lastItem);
                 dao.create(item);
             }
         }

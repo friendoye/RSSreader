@@ -1,9 +1,20 @@
 <resources>
     <string name="app_name">RSS Reader</string>
 
-    <string name="welcome_text">Welcome</string>
+    <string name="wait_text">Please wait...</string>
+
     <string name="title_activity_rss_feed">RSS Feed</string>
     <string name="title_activity_details">News</string>
+
+    <string name="network_error_title_text">Warning!</string>
+    <string name="welcome_network_error_message_text">
+        Check your network connection and try again\n
+        Please, tap to retry
+    </string>
+    <string name="network_error_message_text">
+        Check your network connection and try again
+    </string>
+    <string name="retry_text">Retry</string>
 
     <string name="title_text">Bus and car collision. No one was injured</string>
     <string name="pub_date_text">22.07.2014 14:08</string>

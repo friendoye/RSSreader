@@ -1,28 +1,48 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
+    android:onClick="onClick"
+    android:clickable="true"
     tools:context="com.friendoye.rss_reader.activities.WelcomeActivity"
     android:gravity="center">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:id="@+id/waitTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:keepScreenOn="true"
         android:textColor="#33b5e5"
         android:textStyle="bold"
         android:textSize="50sp"
         android:gravity="center"
-        android:text="@string/welcome_text" />
+        android:clickable="false"
+        android:text="@string/wait_text" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:visibility="invisible" />
+        android:clickable="false"
+        android:id="@+id/progressBar" />
+
+    <TextView
+        android:id="@+id/errorTitleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:clickable="false"
+        android:drawableTop="@drawable/ic_warning_grey_300_36dp"
+        android:text="@string/network_error_title_text"/>
+
+    <TextView
+        android:id="@+id/errorMessageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:clickable="false"
+        android:text="@string/welcome_network_error_message_text"/>
 
 </LinearLayout>
