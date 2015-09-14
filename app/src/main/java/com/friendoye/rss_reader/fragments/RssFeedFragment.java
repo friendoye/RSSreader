@@ -16,10 +16,8 @@ import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.RssFeedItemViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment for displaying list with RSS feed items.
@@ -129,7 +127,7 @@ public class RssFeedFragment extends ListFragment {
             ImageLoader.getInstance().displayImage(item.imageUrl,
                                                    holder.imageView);
             holder.titleView.setText(item.title);
-            holder.dateView.setText(Config.dateFormatter
+            holder.dateView.setText(Config.DATE_FORMATTER
                     .format(item.publicationDate));
 
             return convertView;

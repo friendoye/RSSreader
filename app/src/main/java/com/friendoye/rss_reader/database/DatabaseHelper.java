@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.friendoye.rss_reader.R;
+import com.friendoye.rss_reader.model.OnlinerFeedItem;
 import com.friendoye.rss_reader.model.RssFeedItem;
+import com.friendoye.rss_reader.model.TutByFeedItem;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
@@ -14,6 +16,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,20 +28,23 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "rss.db";
     private static final int DATABASE_VERSION = 1;
 
+    private static final Class[] CONFIG_CLASSES = {
+            OnlinerFeedItem.class, TutByFeedItem.class
+    };
     private RuntimeExceptionDao<RssFeedItem, Integer> mRuntimeDao = null;
 
     public DatabaseHelper(Context context) {
-        // Use R.raw.ormlite_config
-        super(context, DATABASE_NAME, null,
-                DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION,
+                R.raw.ormlite_config);
     }
 
     @Override
     public void onCreate(SQLiteDatabase database,
                          ConnectionSource connectionSource) {
         try {
-            TableUtils.createTableIfNotExists(connectionSource,
-                    RssFeedItem.class);
+            for (Class configClass: CONFIG_CLASSES) {
+                TableUtils.createTableIfNotExists(connectionSource, configClass);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +55,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                           ConnectionSource connectionSource,
                           int oldVersion, int newVersion) {
         try {
-            TableUtils.dropTable(connectionSource, RssFeedItem.class, true);
+            for (Class configClass: CONFIG_CLASSES) {
+                TableUtils.dropTable(connectionSource, configClass, true);
+            }
             onCreate(database, connectionSource);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -57,7 +65,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     }
 
     public void addFeedItems(@NonNull List<RssFeedItem> items) {
-        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
+        Class itemClass = items.get(0).getClass();
+        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
         RssFeedItem lastItem = getFirstItem(dao);
         // If given list has database last item, then we should add
         // only items, that come after. Otherwise, add all items.
@@ -80,26 +89,31 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public RssFeedItem getFeedItem(int id) {
-        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
+    public RssFeedItem getFeedItem(int id, Class itemClass) {
+        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
         return dao.queryForId(id);
     }
 
     public List<RssFeedItem> getAllFeedItems() {
-        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao();
         try {
-            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
-                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
-                    .prepare();
-            return dao.query(constructedQuery);
+            List<RssFeedItem> items = new ArrayList<>();
+            for (Class configClass: CONFIG_CLASSES) {
+                RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(configClass);
+                PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
+                        .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                        .prepare();
+                items.addAll(dao.query(constructedQuery));
+            }
+            return items;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected RuntimeExceptionDao<RssFeedItem, Integer> getRuntimeDao() {
-        if (mRuntimeDao == null) {
-            mRuntimeDao = getRuntimeExceptionDao(RssFeedItem.class);
+    protected <T extends RssFeedItem>
+            RuntimeExceptionDao<RssFeedItem, Integer> getRuntimeDao(Class itemClass) {
+        if (mRuntimeDao == null || mRuntimeDao.getDataClass() != itemClass) {
+            mRuntimeDao = getRuntimeExceptionDao(itemClass);
         }
         return mRuntimeDao;
     }

@@ -5,7 +5,6 @@ import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.RssFeedItem;
@@ -56,10 +55,10 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
                 }
                 if (items != null && items.size() != 0) {
                     databaseHelper.addFeedItems(items);
-                    return true;
                 }
             }
             DatabaseManager.releaseHelper();
+            return true;
         } catch (IOException e) {
             Log.e(IO_EXCEPTION_TAG,
                     "loadInBackground(): problems at parsing. Info: " + e);

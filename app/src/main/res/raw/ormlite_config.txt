@@ -1,9 +1,69 @@
 #
-# generated on 2015/09/14 10:07:57
+# generated on 2015/09/14 06:21:41
 #
 # --table-start--
 dataClass=com.friendoye.rss_reader.model.RssFeedItem
 tableName=feeds
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=title
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=link
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=publicationDate
+columnName=pub_date
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=imageUrl
+# --field-end--
+# --field-start--
+fieldName=source
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.friendoye.rss_reader.model.OnlinerFeedItem
+tableName=onliner_feeds
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=title
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=link
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=publicationDate
+columnName=pub_date
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=imageUrl
+# --field-end--
+# --field-start--
+fieldName=source
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.friendoye.rss_reader.model.TutByFeedItem
+tableName=tut_by_feeds
 # --table-fields-start--
 # --field-start--
 fieldName=id

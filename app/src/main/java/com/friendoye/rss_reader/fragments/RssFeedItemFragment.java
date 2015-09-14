@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,12 +12,9 @@ import android.view.ViewGroup;
 
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.parsers.RssParser;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 

@@ -1,5 +1,6 @@
 package com.friendoye.rss_reader.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +24,7 @@ public class DetailsActivity extends SherlockFragmentActivity
         implements RssFeedItemFragment.OnDownloadCompletedListener,
         ProgressFragment.OnRetryListener {
     public static final String ID_KEY = "id key";
+    public static final String CLASS_NAME_KEY = "class name key";
     private static final String STATE_KEY = "state key";
     private static final String VIEW_FRAGMENT_TAG = "view tag";
     private static final String DATA_FRAGMENT_TAG = "data tag";
@@ -47,9 +49,16 @@ public class DetailsActivity extends SherlockFragmentActivity
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
 
         if (savedInstanceState == null) {
-            int id = getIntent().getIntExtra(ID_KEY, -1);
+            Intent intent = getIntent();
+            int id = intent.getIntExtra(ID_KEY, -1);
+            Class configClass;
+            try {
+                configClass = Class.forName(intent.getStringExtra(CLASS_NAME_KEY));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             if (id != -1) {
-                RssFeedItem item = mDatabaseHelper.getFeedItem(id);
+                RssFeedItem item = mDatabaseHelper.getFeedItem(id, configClass);
                 mDataFragment.setItem(item);
                 mState = LoadingState.LOADING;
             } else {

@@ -11,7 +11,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.friendoye.rss_reader.R;
-import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.LoadingState;
 
 /**

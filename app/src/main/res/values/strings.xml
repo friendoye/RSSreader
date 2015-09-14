@@ -22,6 +22,7 @@
 
     <string-array name="rss_sources_array">
         <item>http://www.onliner.by/feed</item>
+        <item>http://news.tut.by/rss/all.rss</item>
     </string-array>
 
 </resources>

@@ -8,15 +8,16 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
-import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.LoadingState;
+
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
 
 /**
  * Launcher splashscreen activity, that shows up until RSS feed won't be retrieved
@@ -55,6 +56,22 @@ public class WelcomeActivity extends SherlockFragmentActivity
             getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
                     null, this);
         }
+    }
+
+    @Override
+     public void onResume() {
+        super.onResume();
+        checkForCrashes();
+        checkForUpdates();
+    }
+
+    private void checkForCrashes() {
+        CrashManager.register(this, "84c5a3551a6c0bf92bb6f99c72e2ab9c");
+    }
+
+    private void checkForUpdates() {
+        // Remove this for store builds!
+        UpdateManager.register(this, "84c5a3551a6c0bf92bb6f99c72e2ab9c");
     }
 
     @Override
@@ -99,7 +116,6 @@ public class WelcomeActivity extends SherlockFragmentActivity
             mProgressBar.setVisibility(View.GONE);
             mTitleView.setVisibility(View.VISIBLE);
             mMessageView.setVisibility(View.VISIBLE);
-
         }
     }
 
