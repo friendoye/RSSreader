@@ -6,9 +6,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.friendoye.rss_reader.R;
-import com.friendoye.rss_reader.model.OnlinerFeedItem;
+import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
-import com.friendoye.rss_reader.model.TutByFeedItem;
+import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem;
+import com.friendoye.rss_reader.model.tutby.TutByFeedItem;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.PreparedQuery;
@@ -17,6 +18,9 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -94,20 +98,35 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return dao.queryForId(id);
     }
 
-    public List<RssFeedItem> getAllFeedItems() {
-        try {
-            List<RssFeedItem> items = new ArrayList<>();
-            for (Class configClass: CONFIG_CLASSES) {
-                RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(configClass);
-                PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
-                        .orderBy(RssFeedItem.PUB_DATE_KEY, false)
-                        .prepare();
-                items.addAll(dao.query(constructedQuery));
-            }
-            return items;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public List<RssFeedItem> getAllFeedItems(String[] sources) {
+        List<Class> classList = new LinkedList<>();
+        for (String source: sources) {
+            classList.add(AbstractRssSourceFactory
+                    .getInstance(source)
+                    .getFeedItem()
+                    .getClass());
         }
+        return getAllFeedItems(classList);
+    }
+
+    public List<RssFeedItem> getAllFeedItems() {
+        return getAllFeedItems(Arrays.asList(CONFIG_CLASSES));
+    }
+
+    protected List<RssFeedItem> getAllFeedItems(Collection<Class> sourceClasses) {
+    try {
+        List<RssFeedItem> items = new ArrayList<>();
+        for (Class configClass: sourceClasses) {
+            RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(configClass);
+            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
+                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .prepare();
+            items.addAll(dao.query(constructedQuery));
+        }
+        return items;
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
     }
 
     protected <T extends RssFeedItem>

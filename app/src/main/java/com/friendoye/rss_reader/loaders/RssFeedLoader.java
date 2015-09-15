@@ -7,8 +7,9 @@ import android.util.Log;
 
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
+import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
-import com.friendoye.rss_reader.parsers.RssParser;
+import com.friendoye.rss_reader.model.RssParser;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -51,7 +52,8 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
             for (String source: mSources) {
                 InputStream rssStream = getRssStream(source);
                 if (rssStream != null) {
-                    items = RssParser.getInstance(source).parseRssStream(rssStream);
+                    RssParser parser = AbstractRssSourceFactory.getInstance(source).getRssParser();
+                    items = parser.parseRssStream(rssStream);
                 }
                 if (items != null && items.size() != 0) {
                     databaseHelper.addFeedItems(items);

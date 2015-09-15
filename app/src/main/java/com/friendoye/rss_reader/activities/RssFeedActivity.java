@@ -1,7 +1,9 @@
 package com.friendoye.rss_reader.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -9,16 +11,21 @@ import com.actionbarsherlock.view.MenuItem;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
+import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment;
 import com.friendoye.rss_reader.fragments.RssFeedFragment;
 import com.friendoye.rss_reader.model.RssFeedItem;
+import com.friendoye.rss_reader.utils.Config;
+import com.friendoye.rss_reader.utils.Packer;
 
 /**
  * This activity holds RssFeedFragment.
  */
 public class RssFeedActivity extends SherlockFragmentActivity
-        implements  RssFeedFragment.OnItemSelectedListener {
+        implements RssFeedFragment.OnItemSelectedListener,
+        SourcesListDialogFragment.OnSourcesChangedListener {
     private DatabaseHelper mDatabaseHelper;
     private RssFeedFragment mFeedFragment;
+    private String[] mSources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +39,8 @@ public class RssFeedActivity extends SherlockFragmentActivity
                     .findFragmentById(R.id.feed_fragment);
         }
 
-        mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems());
+        updateSources();
+        mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
     }
 
     @Override
@@ -49,6 +57,20 @@ public class RssFeedActivity extends SherlockFragmentActivity
             default:
                 return(super.onOptionsItemSelected(item));
         }
+    }
+
+    @Override
+    public void onSourcesChanged() {
+        updateSources();
+        mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
+    }
+
+    private void updateSources() {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String savedPack = preferences.getString(Config.SOURCES_STRING_KEY,
+                                                 null);
+        mSources = Packer.unpackAsStringArray(savedPack);
     }
 
     @Override

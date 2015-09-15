@@ -10,8 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
-import com.friendoye.rss_reader.parsers.RssParser;
+import com.friendoye.rss_reader.model.RssParser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -64,7 +65,7 @@ public class RssFeedItemFragment extends Fragment {
 
     public void downloadFullInfo() {
         if (mData != null) {
-            RssParser parser = RssParser.getInstance(mData.source);
+            RssParser parser = AbstractRssSourceFactory.getInstance(mData.source).getRssParser();
             mTask = new RetrieveDescriptionTask(mData.link, parser);
             mTask.execute();
         }

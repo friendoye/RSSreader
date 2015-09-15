@@ -1,5 +1,5 @@
 #
-# generated on 2015/09/14 06:21:41
+# generated on 2015/09/15 11:33:24
 #
 # --table-start--
 dataClass=com.friendoye.rss_reader.model.RssFeedItem
@@ -32,7 +32,7 @@ fieldName=source
 # --table-end--
 #################################
 # --table-start--
-dataClass=com.friendoye.rss_reader.model.OnlinerFeedItem
+dataClass=com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 tableName=onliner_feeds
 # --table-fields-start--
 # --field-start--
@@ -62,7 +62,7 @@ fieldName=source
 # --table-end--
 #################################
 # --table-start--
-dataClass=com.friendoye.rss_reader.model.TutByFeedItem
+dataClass=com.friendoye.rss_reader.model.tutby.TutByFeedItem
 tableName=tut_by_feeds
 # --table-fields-start--
 # --field-start--

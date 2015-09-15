@@ -9,5 +9,5 @@ import java.util.Locale;
 public class Config {
     public static final SimpleDateFormat DATE_FORMATTER =
             new SimpleDateFormat("dd.MM.yyyy HH:mm", new Locale("ru"));
-    public static final String SOURCE_INDEX_SET_KEY = "source list key";
+    public static final String SOURCES_STRING_KEY = "sources string key";
 }

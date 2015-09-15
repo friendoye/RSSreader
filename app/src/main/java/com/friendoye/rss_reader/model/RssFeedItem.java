@@ -11,7 +11,7 @@ import java.util.Date;
  * Model for RSS item.
  */
 @DatabaseTable(tableName = "feeds")
-public class RssFeedItem {
+abstract public class RssFeedItem {
     public static final String PUB_DATE_KEY = "pub_date";
 
     @DatabaseField(generatedId = true)

@@ -1,8 +1,8 @@
 package com.friendoye.rss_reader.database;
 
-import com.friendoye.rss_reader.model.OnlinerFeedItem;
 import com.friendoye.rss_reader.model.RssFeedItem;
-import com.friendoye.rss_reader.model.TutByFeedItem;
+import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem;
+import com.friendoye.rss_reader.model.tutby.TutByFeedItem;
 import com.j256.ormlite.android.apptools.OrmLiteConfigUtil;
 
 /**

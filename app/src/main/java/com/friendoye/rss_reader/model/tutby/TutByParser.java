@@ -1,10 +1,7 @@
-package com.friendoye.rss_reader.parsers;
-
-import android.graphics.Bitmap;
+package com.friendoye.rss_reader.model.tutby;
 
 import com.friendoye.rss_reader.model.RssFeedItem;
-import com.friendoye.rss_reader.model.TutByFeedItem;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.friendoye.rss_reader.model.RssParser;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +15,6 @@ import java.io.IOException;
  * RssParser for "Tut.by".
  */
 public class TutByParser extends RssParser {
-
-    public TutByParser(String source) {
-        super(source);
-    }
 
     protected RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException {
@@ -74,21 +67,6 @@ public class TutByParser extends RssParser {
             String description = buffer.toString();
             int lastCharPos = description.lastIndexOf('.');
             return description.substring(0, lastCharPos + 1);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("No tag was found. Info: " + e);
-        }
-    }
-
-    public Bitmap retrieveLargeImage(Document doc)
-            throws RuntimeException {
-        Elements blocks = doc.select("meta[property=\"og:image\"]");
-        try {
-            String imageLink = blocks.get(0).attr("content");
-            if (imageLink != null) {
-                return ImageLoader.getInstance().loadImageSync(imageLink);
-            } else {
-                throw new RuntimeException("No link in tag!");
-            }
         } catch (NullPointerException e) {
             throw new RuntimeException("No tag was found. Info: " + e);
         }

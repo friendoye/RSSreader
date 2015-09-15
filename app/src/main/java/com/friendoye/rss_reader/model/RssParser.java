@@ -1,12 +1,13 @@
-package com.friendoye.rss_reader.parsers;
+package com.friendoye.rss_reader.model;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Xml;
 
-import com.friendoye.rss_reader.model.RssFeedItem;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -24,12 +25,6 @@ import java.util.Locale;
  */
 abstract public class RssParser {
     public static final String PARSE_EXCEPTION_TAG = "ParseException";
-
-    protected String mSource;
-
-    public RssParser(String source) {
-        this.mSource = source;
-    }
 
     public List<RssFeedItem> parseRssStream(InputStream input)
             throws XmlPullParserException, IOException {
@@ -51,20 +46,23 @@ abstract public class RssParser {
     abstract public String retrieveDescription(Document doc)
             throws RuntimeException;
 
-    abstract public Bitmap retrieveLargeImage(Document doc)
-            throws RuntimeException;
-
-    public static RssParser getInstance(String source) {
-        switch (source) {
-            case "http://www.onliner.by/feed":
-                return new OnlinerParser("http://www.onliner.by/feed");
-            case "http://news.tut.by/rss/all.rss":
-                return new TutByParser("http://news.tut.by/rss/all.rss");
-            default:
-                /* Falls through */
+    public Bitmap retrieveLargeImage(Document doc)
+            throws RuntimeException {Elements blocks = doc.select("meta[property=\"og:image\"]");
+        try {
+            String imageLink = blocks.get(0).attr("content");
+            if (imageLink != null) {
+                return ImageLoader.getInstance().loadImageSync(imageLink);
+            } else {
+                throw new RuntimeException("No link in tag!");
+            }
+        } catch (NullPointerException e) {
+            throw new RuntimeException("No tag was found. Info: " + e);
         }
-        return null;
     }
+
+    /**
+     * ============== HELP METHODS ====================
+     */
 
     /**
      * Return reversed list of RssFeedItem from XML.
@@ -77,7 +75,7 @@ abstract public class RssParser {
         while (skipUntil(parser, "item")) {
             parser.require(XmlPullParser.START_TAG, null, "item");
             RssFeedItem item = reedItem(parser);
-            item.source = mSource;
+            //item.source = mSource;
             items.addFirst(item);
         }
 
