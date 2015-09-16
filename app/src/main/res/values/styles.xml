@@ -3,12 +3,13 @@
     <style name="AppTheme" parent="AppTheme.Base">
     </style>
 
-    <style name="AppTheme.Base" parent="Theme.Sherlock.Light">
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/orange_500</item>
+        <item name="colorPrimaryDark">@color/orange_700</item>
     </style>
 
-    <style name="FullscreenTheme" parent="Theme.Sherlock.Light.NoActionBar">
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowBackground">@null</item>
+    <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="TextAppearance.Body1" parent="android:TextAppearance.Medium">

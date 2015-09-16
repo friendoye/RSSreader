@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">RSS Reader</string>
 
-    <string name="wait_text">Please wait...</string>
+    <string name="wait_text">Please wait…</string>
 
     <string name="title_activity_rss_feed">RSS Feed</string>
     <string name="title_activity_details">News</string>
@@ -15,6 +15,8 @@
         Check your network connection and try again
     </string>
     <string name="retry_text">Retry</string>
+
+    <string name="action_pick_sources_description">Sources</string>
 
     <string name="sources_picker_title">Choose RSS sources</string>
     <string name="ok_text">OK</string>

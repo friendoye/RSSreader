@@ -5,9 +5,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
@@ -20,7 +21,7 @@ import com.friendoye.rss_reader.utils.LoadingState;
 /**
  * This activity holds DetailsFragment.
  */
-public class DetailsActivity extends SherlockFragmentActivity
+public class DetailsActivity extends AppCompatActivity
         implements RssFeedItemFragment.OnDownloadCompletedListener,
         ProgressFragment.OnRetryListener {
     public static final String ID_KEY = "id key";
@@ -43,8 +44,11 @@ public class DetailsActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        initFragments();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        initFragments();
 
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
 

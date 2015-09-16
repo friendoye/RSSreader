@@ -5,10 +5,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
@@ -21,7 +22,7 @@ import com.friendoye.rss_reader.utils.Packer;
 /**
  * This activity holds RssFeedFragment.
  */
-public class RssFeedActivity extends SherlockFragmentActivity
+public class RssFeedActivity extends AppCompatActivity
         implements RssFeedFragment.OnItemSelectedListener,
         SourcesListDialogFragment.OnSourcesChangedListener {
     private DatabaseHelper mDatabaseHelper;
@@ -33,12 +34,15 @@ public class RssFeedActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rss_feed);
 
-        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         if (mFeedFragment == null) {
             mFeedFragment = (RssFeedFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.feed_fragment);
         }
+
+        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
 
         updateSources();
         mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
@@ -46,7 +50,7 @@ public class RssFeedActivity extends SherlockFragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.menu_activity_rss_feed, menu);
+        getMenuInflater().inflate(R.menu.menu_activity_rss_feed, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

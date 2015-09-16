@@ -54,6 +54,8 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
                 if (rssStream != null) {
                     RssParser parser = AbstractRssSourceFactory.getInstance(source).getRssParser();
                     items = parser.parseRssStream(rssStream);
+                } else {
+                    return false;
                 }
                 if (items != null && items.size() != 0) {
                     databaseHelper.addFeedItems(items);

@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -24,7 +24,7 @@ import java.util.TreeSet;
 /**
  * Dialog for picking active RSS sources.
  */
-public class SourcesListDialogFragment extends DialogFragment
+public class SourcesListDialogFragment extends AppCompatDialogFragment
         implements DialogInterface.OnMultiChoiceClickListener,
         DialogInterface.OnClickListener {
     public static final String SELECTED_SOURCES_KEY = "selected_s_key";
