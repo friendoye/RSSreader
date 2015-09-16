@@ -47,7 +47,8 @@ abstract public class RssParser {
             throws RuntimeException;
 
     public Bitmap retrieveLargeImage(Document doc)
-            throws RuntimeException {Elements blocks = doc.select("meta[property=\"og:image\"]");
+            throws RuntimeException {
+        Elements blocks = doc.select("meta[property=\"og:image\"]");
         try {
             String imageLink = blocks.get(0).attr("content");
             if (imageLink != null) {

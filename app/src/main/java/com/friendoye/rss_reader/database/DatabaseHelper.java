@@ -72,6 +72,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         Class itemClass = items.get(0).getClass();
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
         RssFeedItem lastItem = getFirstItem(dao);
+
         // If given list has database last item, then we should add
         // only items, that come after. Otherwise, add all items.
         boolean matchLast = false;
@@ -142,6 +143,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             PreparedQuery<T> constructedQuery = dao.queryBuilder()
                     .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .limit(50L) // For a while...
                     .prepare();
             return dao.queryForFirst(constructedQuery);
         } catch (SQLException e) {

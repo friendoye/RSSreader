@@ -1,6 +1,7 @@
 package com.friendoye.rss_reader;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 
 import com.friendoye.rss_reader.utils.Config;
@@ -8,8 +9,7 @@ import com.friendoye.rss_reader.utils.Packer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-
-import java.util.Arrays;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 /**
  * Application class of our app.
@@ -27,9 +27,13 @@ public class Application extends android.app.Application {
         DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .resetViewBeforeLoading(true)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(displayOptions)
+                .denyCacheImageMultipleSizesInMemory()
+                .memoryCacheSize(15 * 1024 * 1024)
                 .build();
         ImageLoader.getInstance().init(config);
     }
@@ -42,7 +46,7 @@ public class Application extends android.app.Application {
         if (pack == null) {
             String[] originalSources = getResources()
                     .getStringArray(R.array.rss_sources_array);
-            pack = Packer.packCollection(Arrays.asList(originalSources));
+            pack = Packer.packCollection(originalSources);
             preferences.edit()
                     .putString(Config.SOURCES_STRING_KEY, pack)
                     .commit();

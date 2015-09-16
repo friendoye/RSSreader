@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -53,6 +54,8 @@ public class RssFeedActivity extends SherlockFragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_pick_sources:
+                DialogFragment newFragment = new SourcesListDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "sourcePicker");
                 return true;
             default:
                 return(super.onOptionsItemSelected(item));

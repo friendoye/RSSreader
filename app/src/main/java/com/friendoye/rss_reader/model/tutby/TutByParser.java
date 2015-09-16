@@ -35,7 +35,9 @@ public class TutByParser extends RssParser {
                     item.publicationDate = readDate(parser, "pubDate");
                     break;
                 case "content":
-                    item.imageUrl = readImageUrl(parser, "content");
+                    if (item.imageUrl == null) {
+                        item.imageUrl = readImageUrl(parser, "content");
+                    }
                     break;
                 default:
                     skipCurrentTag(parser);

@@ -15,6 +15,7 @@ import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.RssFeedItemViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,15 @@ public class RssFeedFragment extends ListFragment {
 
         mAdapter = new RssItemAdapter();
         setListAdapter(mAdapter);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        PauseOnScrollListener listener =
+                new PauseOnScrollListener(ImageLoader.getInstance(), false, true);
+        getListView().setOnScrollListener(listener);
     }
 
     @Override
