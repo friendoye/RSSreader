@@ -26,6 +26,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="false"
+        android:indeterminate="true"
+        android:indeterminateTintMode="src_in"
+        android:indeterminateTint="@color/amber_A400"
         android:id="@+id/progressBar" />
 
     <TextView

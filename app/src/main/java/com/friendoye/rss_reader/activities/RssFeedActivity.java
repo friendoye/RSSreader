@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,6 +17,7 @@ import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment;
 import com.friendoye.rss_reader.fragments.RssFeedFragment;
+import com.friendoye.rss_reader.loaders.RssFeedLoader;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.Packer;
@@ -23,8 +26,9 @@ import com.friendoye.rss_reader.utils.Packer;
  * This activity holds RssFeedFragment.
  */
 public class RssFeedActivity extends AppCompatActivity
-        implements RssFeedFragment.OnItemSelectedListener,
-        SourcesListDialogFragment.OnSourcesChangedListener {
+        implements RssFeedFragment.OnDataUsageListener,
+        SourcesListDialogFragment.OnSourcesChangedListener,
+        LoaderManager.LoaderCallbacks<Boolean> {
     private DatabaseHelper mDatabaseHelper;
     private RssFeedFragment mFeedFragment;
     private String[] mSources;
@@ -87,6 +91,36 @@ public class RssFeedActivity extends AppCompatActivity
         startIntent.putExtra(DetailsActivity.CLASS_NAME_KEY,
                 item.getClass().getName());
         startActivity(startIntent);
+    }
+
+    @Override
+    public void onRefresh() {
+        getSupportLoaderManager().restartLoader(R.id.rss_feed_loader, null, this);
+    }
+
+    @Override
+    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case R.id.rss_feed_loader:
+                return new RssFeedLoader(this, mSources);
+            default:
+                throw new RuntimeException("There's no loader with given id.");
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Boolean> loader, Boolean updated) {
+        if (updated) {
+            mFeedFragment.setFeedItems(
+                    mDatabaseHelper.getAllFeedItems(mSources));
+        } else {
+            // We will do it!
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        // Do nothing.
     }
 
     @Override

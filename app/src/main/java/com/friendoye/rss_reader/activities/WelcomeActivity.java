@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +15,15 @@ import android.widget.TextView;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
+import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.LoadingState;
+import com.friendoye.rss_reader.utils.Packer;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
 /**
- * Launcher splashscreen activity, that shows up until RSS feed won't be retrieved
+ * Launcher activity, that shows up until RSS feed won't be retrieved
  * or any error will occur.
  */
 public class WelcomeActivity extends AppCompatActivity
@@ -143,9 +146,9 @@ public class WelcomeActivity extends AppCompatActivity
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case R.id.rss_feed_loader:
-                // TODO: Inject dependency with preferences
-                final String[] sources = getResources()
-                        .getStringArray(R.array.rss_sources_array);
+                String pack = PreferenceManager.getDefaultSharedPreferences(this)
+                        .getString(Config.SOURCES_STRING_KEY, null);
+                final String[] sources = Packer.unpackAsStringArray(pack);
                 return new RssFeedLoader(this, sources);
             default:
                 throw new RuntimeException("There's no loader with given id.");

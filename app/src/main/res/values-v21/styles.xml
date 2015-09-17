@@ -1,8 +1,6 @@
 <resources>
 
-    <style name="AppTheme" parent="AppTheme.Base">
-        <item name="android:colorAccent">@android:color/white</item>
-    </style>
+    <style name="AppTheme" parent="AppTheme.Base" />
 
     <style name="TextAppearance.Body1" parent="android:TextAppearance.Material.Body1" />
     <style name="TextAppearance.Caption" parent="android:TextAppearance.Material.Caption" />

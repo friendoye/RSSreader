@@ -45,7 +45,7 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
     @Override
     public Boolean loadInBackground() {
         List<RssFeedItem> items = null;
-        SystemClock.sleep(1000);
+        SystemClock.sleep(5000);
         try {
             DatabaseHelper databaseHelper = DatabaseManager
                     .getHelper(this.getContext(), DatabaseHelper.class);
