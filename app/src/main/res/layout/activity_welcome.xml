@@ -22,14 +22,11 @@
         android:clickable="false"
         android:text="@string/wait_text" />
 
-    <ProgressBar
+    <include
+        layout="@layout/custom_progress_bar"
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="false"
-        android:indeterminate="true"
-        android:indeterminateTintMode="src_in"
-        android:indeterminateTint="@color/amber_A400"
-        android:id="@+id/progressBar" />
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/errorTitleView"
@@ -38,6 +35,7 @@
         android:gravity="center"
         android:clickable="false"
         android:drawableTop="@drawable/ic_warning_grey_300_36dp"
+        android:visibility="gone"
         android:text="@string/network_error_title_text"/>
 
     <TextView
@@ -45,6 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:visibility="gone"
         android:clickable="false"
         android:text="@string/welcome_network_error_message_text"/>
 

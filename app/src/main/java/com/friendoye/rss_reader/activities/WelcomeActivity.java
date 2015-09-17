@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.SystemClock;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.friendoye.rss_reader.R;
+import com.friendoye.rss_reader.database.DatabaseHelper;
+import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
-import com.friendoye.rss_reader.utils.Config;
 import com.friendoye.rss_reader.utils.LoadingState;
-import com.friendoye.rss_reader.utils.Packer;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -37,6 +37,8 @@ public class WelcomeActivity extends AppCompatActivity
 
     private LoadingState mState;
 
+    private DatabaseHelper mDatabaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,9 +57,15 @@ public class WelcomeActivity extends AppCompatActivity
             setState(LoadingState.LOADING);
         }
 
+        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
+
         if (mState == LoadingState.LOADING) {
-            getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
-                    null, this);
+            if (activeNetworkConnection()) {
+                getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
+                        null, this);
+            } else {
+                setState(LoadingState.SUCCESS);
+            }
         }
     }
 
@@ -93,6 +101,7 @@ public class WelcomeActivity extends AppCompatActivity
                 showProgressBar();
                 break;
             case SUCCESS:
+                SystemClock.sleep(2000);
                 Intent startIntent = new Intent(this, RssFeedActivity.class);
                 startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -122,7 +131,7 @@ public class WelcomeActivity extends AppCompatActivity
         }
     }
 
-    private boolean activeNetworkConnection() {
+    protected boolean activeNetworkConnection() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -146,9 +155,8 @@ public class WelcomeActivity extends AppCompatActivity
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case R.id.rss_feed_loader:
-                String pack = PreferenceManager.getDefaultSharedPreferences(this)
-                        .getString(Config.SOURCES_STRING_KEY, null);
-                final String[] sources = Packer.unpackAsStringArray(pack);
+                final String[] sources = getResources()
+                        .getStringArray(R.array.rss_sources_array);
                 return new RssFeedLoader(this, sources);
             default:
                 throw new RuntimeException("There's no loader with given id.");
@@ -157,7 +165,7 @@ public class WelcomeActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
-        if (success) {
+        if (mDatabaseHelper.hasItems()) {
             setState(LoadingState.SUCCESS);
         } else {
             setState(LoadingState.FAILURE);
@@ -167,5 +175,13 @@ public class WelcomeActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {
         // Do nothing.
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        DatabaseManager.releaseHelper();
+        mDatabaseHelper = null;
     }
 }

@@ -66,7 +66,7 @@ public class RssFeedFragment extends ListFragment {
                 }
             }
         });
-        mSwipeLayout.setColorSchemeColors(R.color.amber_A400,
+        mSwipeLayout.setColorSchemeResources(R.color.amber_A400,
                 R.color.orange_500);
 
         return rootView;
@@ -85,7 +85,7 @@ public class RssFeedFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         PauseOnScrollListener listener =
-                new PauseOnScrollListener(ImageLoader.getInstance(), false, true);
+                new PauseOnScrollListener(ImageLoader.getInstance(), true, true);
         getListView().setOnScrollListener(listener);
     }
 
@@ -101,12 +101,16 @@ public class RssFeedFragment extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mCallback = null;
+        mAdapter = null;
+    }
+
+    public void setRefreshing(boolean check) {
+        if (mSwipeLayout != null) {
+            mSwipeLayout.setRefreshing(check);
+        }
     }
 
     public void setFeedItems(List<RssFeedItem> items) {
-        if (mSwipeLayout.isRefreshing()) {
-            mSwipeLayout.setRefreshing(false);
-        }
         mAdapter.setItems(items);
     }
 

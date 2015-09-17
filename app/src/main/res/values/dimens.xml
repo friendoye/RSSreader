@@ -8,6 +8,7 @@
     <!-- Dimens for view_rss_feed_item -->
     <dimen name="image_height">120dp</dimen>
     <dimen name="image_margin">8dp</dimen>
-    <!-- Dimens for Toolbar -->
+    <!-- Dimens for Views -->
     <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="swipe_elevation">3dp</dimen>
 </resources>

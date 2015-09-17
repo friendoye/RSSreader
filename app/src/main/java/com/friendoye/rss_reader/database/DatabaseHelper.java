@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public static final String SQL_EXCEPTION_TAG = "SQL Exception";
+    public static final long MAX_TABLE_ITEMS_AMOUNT = 50L;
 
     private static final String DATABASE_NAME = "rss.db";
     private static final int DATABASE_VERSION = 1;
@@ -92,6 +93,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 dao.create(item);
             }
         }
+
+        // Leave in table only <MAX_TABLE_ITEMS_AMOUNT> items
+        trunkItems(dao);
+    }
+
+    public boolean hasItems() {
+        for (Class configClass: CONFIG_CLASSES) {
+            if (getRuntimeDao(configClass).queryForAll().size() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public RssFeedItem getFeedItem(int id, Class itemClass) {
@@ -102,16 +115,31 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public List<RssFeedItem> getAllFeedItems(String[] sources) {
         List<Class> classList = new LinkedList<>();
         for (String source: sources) {
-            classList.add(AbstractRssSourceFactory
-                    .getInstance(source)
-                    .getFeedItem()
-                    .getClass());
+            AbstractRssSourceFactory factory = AbstractRssSourceFactory
+                    .getInstance(source);
+            if (factory != null) {
+                classList.add(factory.getFeedItem().getClass());
+            }
         }
         return getAllFeedItems(classList);
     }
 
     public List<RssFeedItem> getAllFeedItems() {
         return getAllFeedItems(Arrays.asList(CONFIG_CLASSES));
+    }
+
+    protected <ID> void trunkItems(RuntimeExceptionDao<RssFeedItem, ID> dao) {
+        try {
+            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
+                    .offset(MAX_TABLE_ITEMS_AMOUNT)
+                    .orderBy(RssFeedItem.PUB_DATE_KEY, false)
+                    .prepare();
+            List<RssFeedItem> redundantItems =  dao.query(constructedQuery);
+            dao.delete(redundantItems);
+        } catch (Exception e) {
+            Log.i(SQL_EXCEPTION_TAG,
+                    "trunkItems(): failed to prepare query. Info: " + e);
+        }
     }
 
     protected List<RssFeedItem> getAllFeedItems(Collection<Class> sourceClasses) {
@@ -130,20 +158,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     }
     }
 
-    protected <T extends RssFeedItem>
-            RuntimeExceptionDao<RssFeedItem, Integer> getRuntimeDao(Class itemClass) {
+    protected RuntimeExceptionDao<RssFeedItem, Integer> getRuntimeDao(Class itemClass) {
         if (mRuntimeDao == null || mRuntimeDao.getDataClass() != itemClass) {
             mRuntimeDao = getRuntimeExceptionDao(itemClass);
         }
         return mRuntimeDao;
     }
 
-    protected <T extends Object, ID extends Object>
-            T getFirstItem(RuntimeExceptionDao<T, ID> dao) {
+    protected <ID> RssFeedItem getFirstItem(RuntimeExceptionDao<RssFeedItem, ID> dao) {
         try {
-            PreparedQuery<T> constructedQuery = dao.queryBuilder()
+            PreparedQuery<RssFeedItem> constructedQuery = dao.queryBuilder()
                     .orderBy(RssFeedItem.PUB_DATE_KEY, false)
-                    .limit(50L) // For a while...
                     .prepare();
             return dao.queryForFirst(constructedQuery);
         } catch (SQLException e) {

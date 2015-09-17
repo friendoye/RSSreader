@@ -1,7 +1,6 @@
 package com.friendoye.rss_reader.loaders;
 
 import android.content.Context;
-import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
@@ -44,8 +43,7 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
      */
     @Override
     public Boolean loadInBackground() {
-        List<RssFeedItem> items = null;
-        SystemClock.sleep(5000);
+        List<RssFeedItem> items;
         try {
             DatabaseHelper databaseHelper = DatabaseManager
                     .getHelper(this.getContext(), DatabaseHelper.class);

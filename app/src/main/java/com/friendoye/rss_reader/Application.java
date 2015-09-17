@@ -25,6 +25,7 @@ public class Application extends android.app.Application {
 
     private void initUIL() {
         DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+                .cacheOnDisk(true)
                 .cacheInMemory(true)
                 .resetViewBeforeLoading(true)
                 .imageScaleType(ImageScaleType.EXACTLY)
@@ -33,6 +34,7 @@ public class Application extends android.app.Application {
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(displayOptions)
                 .denyCacheImageMultipleSizesInMemory()
+                .memoryCacheSize(50 * 1024 * 1024)
                 .memoryCacheSize(15 * 1024 * 1024)
                 .build();
         ImageLoader.getInstance().init(config);

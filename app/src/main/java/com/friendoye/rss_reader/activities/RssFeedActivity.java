@@ -1,7 +1,10 @@
 package com.friendoye.rss_reader.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
@@ -11,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.database.DatabaseHelper;
@@ -20,6 +24,7 @@ import com.friendoye.rss_reader.fragments.RssFeedFragment;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.Config;
+import com.friendoye.rss_reader.utils.LoadingState;
 import com.friendoye.rss_reader.utils.Packer;
 
 /**
@@ -29,9 +34,13 @@ public class RssFeedActivity extends AppCompatActivity
         implements RssFeedFragment.OnDataUsageListener,
         SourcesListDialogFragment.OnSourcesChangedListener,
         LoaderManager.LoaderCallbacks<Boolean> {
+    private static final String STATE_KEY = "state key";
+
     private DatabaseHelper mDatabaseHelper;
     private RssFeedFragment mFeedFragment;
     private String[] mSources;
+
+    private LoadingState mState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +55,21 @@ public class RssFeedActivity extends AppCompatActivity
                     .findFragmentById(R.id.feed_fragment);
         }
 
+        updateSources();
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
 
-        updateSources();
+        if (savedInstanceState != null) {
+            String stateString = savedInstanceState.getString(STATE_KEY);
+            mState = LoadingState.valueOf(stateString);
+        } else {
+            mState = LoadingState.SUCCESS;
+        }
+
+        if (mState == LoadingState.LOADING) {
+            getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
+                    null, this);
+        }
+
         mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
     }
 
@@ -67,6 +88,23 @@ public class RssFeedActivity extends AppCompatActivity
                 return true;
             default:
                 return(super.onOptionsItemSelected(item));
+        }
+    }
+
+    protected void setState(LoadingState state) {
+        mState = state;
+        switch (state) {
+            case LOADING:
+                getSupportLoaderManager()
+                        .restartLoader(R.id.rss_feed_loader, null, this);
+                break;
+            case SUCCESS:
+                mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
+                break;
+            case FAILURE:
+                Toast.makeText(this, R.string.fail_to_refresh_text,
+                        Toast.LENGTH_LONG).show();
+                break;
         }
     }
 
@@ -95,7 +133,20 @@ public class RssFeedActivity extends AppCompatActivity
 
     @Override
     public void onRefresh() {
-        getSupportLoaderManager().restartLoader(R.id.rss_feed_loader, null, this);
+        if (activeNetworkConnection()) {
+            setState(LoadingState.LOADING);
+        } else {
+            mFeedFragment.setRefreshing(false);
+            Toast.makeText(this, R.string.no_internet_connection_text,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    protected boolean activeNetworkConnection() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override
@@ -110,17 +161,26 @@ public class RssFeedActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean updated) {
+        mFeedFragment.setRefreshing(false);
         if (updated) {
-            mFeedFragment.setFeedItems(
-                    mDatabaseHelper.getAllFeedItems(mSources));
+            setState(LoadingState.SUCCESS);
         } else {
-            // We will do it!
+            setState(LoadingState.FAILURE);
         }
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
         // Do nothing.
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (outState == null) {
+            outState = new Bundle();
+        }
+        outState.putString(STATE_KEY, mState.toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
