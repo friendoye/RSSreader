@@ -2,10 +2,9 @@ package com.friendoye.rss_reader.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
@@ -15,6 +14,7 @@ import android.widget.Toast;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.utils.Config;
+import com.friendoye.rss_reader.utils.DataKeeper;
 import com.friendoye.rss_reader.utils.Packer;
 
 import java.util.Arrays;
@@ -54,11 +54,8 @@ public class SourcesListDialogFragment extends AppCompatDialogFragment
         super.onCreate(savedInstanceState);
 
         mSources = getResources().getStringArray(R.array.rss_sources_array);
+        String savedPack = DataKeeper.restoreString(getActivity(), Config.SOURCES_STRING_KEY);
 
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-        String savedPack = preferences.getString(Config.SOURCES_STRING_KEY,
-                                                 null);
         if (savedInstanceState == null) {
             mSelectedSources = new boolean[mSources.length];
             if (savedPack != null) {
@@ -69,8 +66,7 @@ public class SourcesListDialogFragment extends AppCompatDialogFragment
                 }
             }
         } else {
-            mSelectedSources = savedInstanceState
-                    .getBooleanArray(SELECTED_SOURCES_KEY);
+            mSelectedSources = savedInstanceState.getBooleanArray(SELECTED_SOURCES_KEY);
         }
     }
 
@@ -102,19 +98,15 @@ public class SourcesListDialogFragment extends AppCompatDialogFragment
             positiveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    SharedPreferences preferences = PreferenceManager
-                            .getDefaultSharedPreferences(getActivity());
-                    String savedPack = preferences.getString(Config.SOURCES_STRING_KEY,
-                                                             null);
+                    Context context = getActivity();
+                    String savedPack = DataKeeper.restoreString(context, Config.SOURCES_STRING_KEY);
                     String pack = Packer.packCollection(mSources, mSelectedSources);
                     if (pack == null) {
                         Toast.makeText(getActivity(), R.string.no_sources_forbidden_text,
                                 Toast.LENGTH_LONG).show();
                         return;
                     } else if (savedPack == null ||!savedPack.equals(pack)) {
-                        preferences.edit()
-                                .putString(Config.SOURCES_STRING_KEY, pack)
-                                .commit();
+                        DataKeeper.saveString(context, Config.SOURCES_STRING_KEY, pack);
                         if (mCallback != null) {
                             mCallback.onSourcesChanged();
                         }

@@ -1,12 +1,7 @@
 package com.friendoye.rss_reader.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -24,7 +19,9 @@ import com.friendoye.rss_reader.fragments.RssFeedFragment;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.utils.Config;
+import com.friendoye.rss_reader.utils.DataKeeper;
 import com.friendoye.rss_reader.utils.LoadingState;
+import com.friendoye.rss_reader.utils.NetworkHelper;
 import com.friendoye.rss_reader.utils.Packer;
 
 /**
@@ -66,7 +63,8 @@ public class RssFeedActivity extends AppCompatActivity
         }
 
         if (mState == LoadingState.LOADING) {
-            setState(mState);
+            getSupportLoaderManager()
+                    .initLoader(R.id.rss_feed_loader, null, this);
         }
 
         mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
@@ -114,17 +112,14 @@ public class RssFeedActivity extends AppCompatActivity
     }
 
     private void updateSources() {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        String savedPack = preferences.getString(Config.SOURCES_STRING_KEY,
-                                                 null);
+        String savedPack = DataKeeper.restoreString(this, Config.SOURCES_STRING_KEY);
         mSources = Packer.unpackAsStringArray(savedPack);
     }
 
     @Override
     public void onItemSelected(RssFeedItem item) {
         Intent startIntent = new Intent(this, DetailsActivity.class);
-        startIntent.putExtra(DetailsActivity.ID_KEY, item.id);
+        startIntent.putExtra(DetailsActivity.LINK_KEY, item.link);
         startIntent.putExtra(DetailsActivity.CLASS_NAME_KEY,
                 item.getClass().getName());
         startActivity(startIntent);
@@ -132,20 +127,13 @@ public class RssFeedActivity extends AppCompatActivity
 
     @Override
     public void onRefresh() {
-        if (activeNetworkConnection()) {
+        if (NetworkHelper.isConnected(this)) {
             setState(LoadingState.LOADING);
         } else {
             mFeedFragment.setRefreshing(false);
             Toast.makeText(this, R.string.no_internet_connection_text,
                     Toast.LENGTH_LONG).show();
         }
-    }
-
-    protected boolean activeNetworkConnection() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override

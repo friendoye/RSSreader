@@ -1,7 +1,6 @@
 package com.friendoye.rss_reader.loaders;
 
 import android.content.Context;
-import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
@@ -43,11 +42,13 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
      * Return null, if problems occurred or parser didn't find any item.
      */
     @Override
-    public Boolean loadInBackground() {
+    public synchronized Boolean loadInBackground() {
         List<RssFeedItem> items;
+
         try {
             DatabaseHelper databaseHelper = DatabaseManager
                     .getHelper(this.getContext(), DatabaseHelper.class);
+
             for (String source: mSources) {
                 InputStream rssStream = getRssStream(source);
                 if (rssStream != null) {
@@ -60,7 +61,7 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
                     databaseHelper.addFeedItems(items);
                 }
             }
-            DatabaseManager.releaseHelper();
+
             return true;
         } catch (IOException e) {
             Log.e(IO_EXCEPTION_TAG,
@@ -68,6 +69,8 @@ public class RssFeedLoader extends AsyncTaskLoader<Boolean> {
         } catch (XmlPullParserException e) {
             Log.e(NOT_IO_EXCEPTION_TAG,
                     "loadInBackground(): problems at parsing. Info: " + e);
+        } finally {
+            DatabaseManager.releaseHelper();
         }
 
         return false;

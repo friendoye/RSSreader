@@ -48,17 +48,18 @@ abstract public class RssParser {
 
     public Bitmap retrieveLargeImage(Document doc)
             throws RuntimeException {
-        Elements blocks = doc.select("meta[property=\"og:image\"]");
+        Elements blocks = doc.select("meta[property^=\"og:image\"]");
         try {
             String imageLink = blocks.get(0).attr("content");
             if (imageLink != null) {
                 return ImageLoader.getInstance().loadImageSync(imageLink);
             } else {
-                throw new RuntimeException("No link in tag!");
+                Log.e(PARSE_EXCEPTION_TAG, "No link in tag!");
             }
-        } catch (NullPointerException e) {
-            throw new RuntimeException("No tag was found. Info: " + e);
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
+            Log.e(PARSE_EXCEPTION_TAG, "No tag was found. Info: " + e);
         }
+        return null;
     }
 
     /**
@@ -76,8 +77,7 @@ abstract public class RssParser {
         while (skipUntil(parser, "item")) {
             parser.require(XmlPullParser.START_TAG, null, "item");
             RssFeedItem item = reedItem(parser);
-            //item.source = mSource;
-            items.addFirst(item);
+            items.addFirst(item); // This method should be implemented
         }
 
         return items;

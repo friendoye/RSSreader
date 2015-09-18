@@ -19,9 +19,8 @@ abstract public class AbstractRssSourceFactory {
             case TutByFactory.SOURCE:
                 return new TutByFactory();
             default:
-                /* Falls through */
+                throw new RuntimeException("getInstance(): no such factory!");
         }
-        return null;
     }
 
 }

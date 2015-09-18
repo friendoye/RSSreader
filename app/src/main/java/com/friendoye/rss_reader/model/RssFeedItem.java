@@ -11,14 +11,15 @@ import java.util.Date;
  * Model for RSS item.
  */
 @DatabaseTable(tableName = "feeds")
-abstract public class RssFeedItem {
+abstract public class RssFeedItem implements Comparable<RssFeedItem> {
     public static final String PUB_DATE_KEY = "pub_date";
+    public static final String LINK_KEY = "link";
 
     @DatabaseField(generatedId = true)
     public int id;
     @DatabaseField(canBeNull = false)
     public String title;
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = LINK_KEY, canBeNull = false)
     public String link;
     @DatabaseField(columnName = PUB_DATE_KEY, canBeNull = false)
     public Date publicationDate;
@@ -43,6 +44,15 @@ abstract public class RssFeedItem {
                     || item.title.contains(title);
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public int compareTo(RssFeedItem item) {
+        if (item == null) {
+            return -1;
+        } else {
+            return item.publicationDate.compareTo(publicationDate);
         }
     }
 }

@@ -1,11 +1,7 @@
 package com.friendoye.rss_reader.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -18,13 +14,16 @@ import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.loaders.RssFeedLoader;
 import com.friendoye.rss_reader.utils.LoadingState;
+import com.friendoye.rss_reader.utils.NetworkHelper;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
 /**
- * Launcher activity, that shows up until RSS feed won't be retrieved
- * or any error will occur.
+ * Launcher activity, that shows up until:
+ * 1) RSS feeds are retrieved (if network is connected);
+ * 2) RSS feeds aren't retrieved, but database has them (if network is disconnected);
+ * 3) Error has occurred.
  */
 public class WelcomeActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Boolean> {
@@ -82,15 +81,6 @@ public class WelcomeActivity extends AppCompatActivity
         UpdateManager.register(this, "84c5a3551a6c0bf92bb6f99c72e2ab9c");
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (outState == null) {
-            outState = new Bundle();
-        }
-        outState.putString(STATE_KEY, mState.toString());
-        super.onSaveInstanceState(outState);
-    }
-
     protected void setState(LoadingState state) {
         mState = state;
         switch (state) {
@@ -127,20 +117,13 @@ public class WelcomeActivity extends AppCompatActivity
         }
     }
 
-    protected boolean activeNetworkConnection() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-    }
-
     public void onClick(View view) {
         if (mState != LoadingState.FAILURE) {
             return;
         }
         switch (view.getId()) {
             case R.id.container_layout:
-                if (activeNetworkConnection()) {
+                if (NetworkHelper.isConnected(this)) {
                     setState(LoadingState.LOADING);
                     getSupportLoaderManager().restartLoader(R.id.rss_feed_loader,
                             null, this);
@@ -153,6 +136,7 @@ public class WelcomeActivity extends AppCompatActivity
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case R.id.rss_feed_loader:
+                // Update with all sources
                 final String[] sources = getResources()
                         .getStringArray(R.array.rss_sources_array);
                 return new RssFeedLoader(this, sources);
@@ -173,6 +157,15 @@ public class WelcomeActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {
         // Do nothing.
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (outState == null) {
+            outState = new Bundle();
+        }
+        outState.putString(STATE_KEY, mState.toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override

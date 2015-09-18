@@ -24,7 +24,7 @@ import com.friendoye.rss_reader.utils.LoadingState;
 public class DetailsActivity extends AppCompatActivity
         implements RssFeedItemFragment.OnDownloadCompletedListener,
         ProgressFragment.OnRetryListener {
-    public static final String ID_KEY = "id key";
+    public static final String LINK_KEY = "link key";
     public static final String CLASS_NAME_KEY = "class name key";
     private static final String STATE_KEY = "state key";
     private static final String VIEW_FRAGMENT_TAG = "view tag";
@@ -54,15 +54,15 @@ public class DetailsActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            int id = intent.getIntExtra(ID_KEY, -1);
+            String link = intent.getStringExtra(LINK_KEY);
             Class configClass;
             try {
                 configClass = Class.forName(intent.getStringExtra(CLASS_NAME_KEY));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            if (id != -1) {
-                RssFeedItem item = mDatabaseHelper.getFeedItem(id, configClass);
+            if (link != null) {
+                RssFeedItem item = mDatabaseHelper.getFeedItem(link, configClass);
                 mDataFragment.setItem(item);
                 mState = LoadingState.LOADING;
             } else {

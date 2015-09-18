@@ -1,6 +1,6 @@
 package com.friendoye.rss_reader.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.RssParser;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,7 +40,7 @@ public class RssFeedItemFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity context) {
+    public void onAttach(Context context) {
         super.onAttach(context);
         try {
             mCallback = (OnDownloadCompletedListener) context;
@@ -73,14 +74,19 @@ public class RssFeedItemFragment extends Fragment {
 
     protected void onDownloadComplete(String description,
                                       Bitmap largeImage) {
-        if (description != null && largeImage != null) {
+        if (description != null) {
             if (mData != null) {
                 mData.description = description;
-                mData.largeImage = largeImage;
+                mData.largeImage = largeImage != null ? largeImage :
+                        ImageLoader.getInstance().loadImageSync(mData.imageUrl);
             }
-            mCallback.onDownloadSuccess();
+            if (mCallback != null) {
+                mCallback.onDownloadSuccess();
+            }
         } else {
-            mCallback.onDownloadFailure();
+            if (mCallback != null) {
+                mCallback.onDownloadFailure();
+            }
         }
     }
 
@@ -107,7 +113,7 @@ public class RssFeedItemFragment extends Fragment {
         protected Object[] doInBackground(Void... params) {
             Object[] results = null;
             try {
-                Document doc = Jsoup.connect(mLink).get();
+                Document doc = Jsoup.connect(mLink).timeout(5000).get();
                 results = new Object[2];
                 results[0] = mParser.retrieveDescription(doc);
                 results[1] = mParser.retrieveLargeImage(doc);

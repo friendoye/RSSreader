@@ -12,14 +12,13 @@ import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem;
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,30 +68,24 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public void addFeedItems(@NonNull List<RssFeedItem> items) {
-        Class itemClass = items.get(0).getClass();
+    public synchronized void addFeedItems(@NonNull List<RssFeedItem> items) {
+        RssFeedItem firstRetrItem = items.get(0);
+        Class itemClass = firstRetrItem.getClass();
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
-        RssFeedItem lastItem = getFirstItem(dao);
 
-        // If given list has database last item, then we should add
-        // only items, that come after. Otherwise, add all items.
-        boolean matchLast = false;
-        if (lastItem != null) {
-            for (RssFeedItem item : items) {
-                if (matchLast) {
-                    dao.create(item);
-                    continue;
-                }
-                if (item.equals(lastItem)) {
-                    matchLast = true;
-                    dao.updateId(item, lastItem.id);
-                }
-            }
+        try {
+            DeleteBuilder deleteBuilder = dao.deleteBuilder();
+            deleteBuilder.where()
+                    .gt(RssFeedItem.PUB_DATE_KEY, firstRetrItem.publicationDate)
+                    .or().eq("link", firstRetrItem.link)
+                    .or().eq("imageUrl", firstRetrItem.imageUrl);
+            deleteBuilder.delete();
+        } catch (Exception e) {
+            throw new RuntimeException("Something bad in DatabaseHelper");
         }
-        if (!matchLast) {
-            for (RssFeedItem item : items) {
-                dao.create(item);
-            }
+
+        for (RssFeedItem item : items) {
+            dao.create(item);
         }
 
         // Leave in table only <MAX_TABLE_ITEMS_AMOUNT> items
@@ -104,7 +97,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public boolean hasItems() {
+    public synchronized boolean hasItems() {
         for (Class configClass: CONFIG_CLASSES) {
             if (getRuntimeDao(configClass).queryForAll().size() > 0) {
                 return true;
@@ -113,12 +106,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return false;
     }
 
-    public RssFeedItem getFeedItem(int id, Class itemClass) {
-        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
-        return dao.queryForId(id);
-    }
-
-    public List<RssFeedItem> getAllFeedItems(String[] sources) {
+    public synchronized List<RssFeedItem> getAllFeedItems(String[] sources) {
         List<RssFeedItem> list = new LinkedList<>();
         List returnedList;
         for (String source: sources) {
@@ -130,10 +118,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 list.addAll(returnedList);
             }
         }
+        Collections.sort(list);
         return list.size() == 0 ? null : list;
     }
 
-    public List<RssFeedItem> getAllFeedItems() {
+    public synchronized RssFeedItem getFeedItem(String link, Class itemClass) {
+        RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
+        return dao.queryForEq(RssFeedItem.LINK_KEY, link).get(0);
+    }
+
+    public synchronized List<RssFeedItem> getAllFeedItems() {
         LinkedList<RssFeedItem> list = new LinkedList<>();
         List returnedList;
         for (Class itemClass: CONFIG_CLASSES){

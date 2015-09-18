@@ -1,6 +1,6 @@
 package com.friendoye.rss_reader.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -33,7 +33,7 @@ public class ProgressFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity context) {
+    public void onAttach(Context context) {
         super.onAttach(context);
         try {
             mCallback = (OnRetryListener) context;
@@ -77,6 +77,8 @@ public class ProgressFragment extends Fragment {
             case FAILURE:
                 showRetryMessage();
                 break;
+            case LOADING:
+                /* Falls through */
             default:
                 showProgressBar();
                 break;
