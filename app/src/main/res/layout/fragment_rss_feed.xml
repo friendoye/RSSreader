@@ -4,7 +4,6 @@
     android:id="@+id/swipe_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:elevation="@dimen/swipe_elevation"
     tools:context="com.friendoye.rss_reader.fragments.RssFeedFragment">
 
     <ListView

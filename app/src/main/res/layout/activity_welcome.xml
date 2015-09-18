@@ -8,6 +8,7 @@
     android:background="@color/orange_500"
     android:onClick="onClick"
     android:clickable="true"
+    android:padding="16dp"
     tools:context="com.friendoye.rss_reader.activities.WelcomeActivity"
     android:gravity="center">
 
@@ -17,7 +18,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/amber_A400"
         android:textStyle="bold"
-        android:textSize="50sp"
+        android:textSize="46sp"
         android:gravity="center"
         android:clickable="false"
         android:text="@string/wait_text" />

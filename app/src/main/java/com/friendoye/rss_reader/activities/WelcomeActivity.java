@@ -50,6 +50,8 @@ public class WelcomeActivity extends AppCompatActivity
         mTitleView = (TextView) findViewById(R.id.errorTitleView);
         mMessageView = (TextView) findViewById(R.id.errorMessageView);
 
+        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
+
         if (savedInstanceState != null) {
             String stateString = savedInstanceState.getString(STATE_KEY);
             mState = LoadingState.valueOf(stateString);
@@ -57,15 +59,10 @@ public class WelcomeActivity extends AppCompatActivity
             setState(LoadingState.LOADING);
         }
 
-        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
-
+        setState(mState);
         if (mState == LoadingState.LOADING) {
-            if (activeNetworkConnection()) {
-                getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
-                        null, this);
-            } else {
-                setState(LoadingState.SUCCESS);
-            }
+            getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
+                    null, this);
         }
     }
 
@@ -101,7 +98,6 @@ public class WelcomeActivity extends AppCompatActivity
                 showProgressBar();
                 break;
             case SUCCESS:
-                SystemClock.sleep(2000);
                 Intent startIntent = new Intent(this, RssFeedActivity.class);
                 startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -144,9 +140,11 @@ public class WelcomeActivity extends AppCompatActivity
         }
         switch (view.getId()) {
             case R.id.container_layout:
-                setState(LoadingState.LOADING);
-                getSupportLoaderManager().restartLoader(R.id.rss_feed_loader,
-                        null, this);
+                if (activeNetworkConnection()) {
+                    setState(LoadingState.LOADING);
+                    getSupportLoaderManager().restartLoader(R.id.rss_feed_loader,
+                            null, this);
+                }
                 break;
         }
     }
@@ -165,7 +163,7 @@ public class WelcomeActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
-        if (mDatabaseHelper.hasItems()) {
+        if (success || mDatabaseHelper.hasItems()) {
             setState(LoadingState.SUCCESS);
         } else {
             setState(LoadingState.FAILURE);

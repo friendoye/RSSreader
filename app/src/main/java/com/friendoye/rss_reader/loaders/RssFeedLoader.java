@@ -1,6 +1,7 @@
 package com.friendoye.rss_reader.loaders;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 

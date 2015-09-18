@@ -25,6 +25,9 @@ import java.util.List;
  * Fragment for displaying list with RSS feed items.
  */
 public class RssFeedFragment extends ListFragment {
+    public static final String IS_REFRESHING_KEY = "refreshing key";
+    public static final String LIST_POSITION_KEY = "list position key";
+
     private SwipeRefreshLayout mSwipeLayout;
 
     private OnDataUsageListener mCallback;
@@ -69,6 +72,9 @@ public class RssFeedFragment extends ListFragment {
         mSwipeLayout.setColorSchemeResources(R.color.amber_A400,
                 R.color.orange_500);
 
+        if (savedInstanceState != null) {
+        }
+
         return rootView;
     }
 
@@ -87,6 +93,23 @@ public class RssFeedFragment extends ListFragment {
         PauseOnScrollListener listener =
                 new PauseOnScrollListener(ImageLoader.getInstance(), true, true);
         getListView().setOnScrollListener(listener);
+
+        if (savedInstanceState != null) {
+            boolean flag = savedInstanceState.getBoolean(IS_REFRESHING_KEY);
+            if (flag) {
+                mSwipeLayout.setRefreshing(true);
+                mSwipeLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mSwipeLayout.isRefreshing()) {
+                            setRefreshing(true);
+                        }
+                    }
+                }, 500);
+            }
+            int savedPosition = savedInstanceState.getInt(LIST_POSITION_KEY);
+            getListView().setSelection(savedPosition);
+        }
     }
 
     @Override
@@ -95,6 +118,13 @@ public class RssFeedFragment extends ListFragment {
         RssFeedItem item = (RssFeedItem)
                 parent.getItemAtPosition(position);
         mCallback.onItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(IS_REFRESHING_KEY, mSwipeLayout.isRefreshing());
+        outState.putInt(LIST_POSITION_KEY, getListView().getFirstVisiblePosition());
     }
 
     @Override

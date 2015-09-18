@@ -38,7 +38,7 @@ abstract public class RssFeedItem {
         if (obj instanceof RssFeedItem) {
             RssFeedItem item = (RssFeedItem) obj;
             return link.equals(item.link)
-                    || imageUrl.equals(item.imageUrl)
+                    || (imageUrl != null && imageUrl.equals(item.imageUrl))
                     || title.contains(item.title)
                     || item.title.contains(title);
         } else {

@@ -66,8 +66,7 @@ public class RssFeedActivity extends AppCompatActivity
         }
 
         if (mState == LoadingState.LOADING) {
-            getSupportLoaderManager().initLoader(R.id.rss_feed_loader,
-                    null, this);
+            setState(mState);
         }
 
         mFeedFragment.setFeedItems(mDatabaseHelper.getAllFeedItems(mSources));
