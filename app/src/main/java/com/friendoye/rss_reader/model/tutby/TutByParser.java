@@ -35,7 +35,7 @@ public class TutByParser extends RssParser {
                     item.publicationDate = readDate(parser, "pubDate");
                     break;
                 case "content":
-                    if (item.imageUrl == null) {
+                    if (item.imageUrl == null ||!item.imageUrl.endsWith(".jpg")) {
                         item.imageUrl = readImageUrl(parser, "content");
                     }
                     break;

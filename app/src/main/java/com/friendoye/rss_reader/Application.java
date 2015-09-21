@@ -1,10 +1,12 @@
 package com.friendoye.rss_reader;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 
 import com.friendoye.rss_reader.utils.Config;
+import com.friendoye.rss_reader.utils.DownloadManager;
 import com.friendoye.rss_reader.utils.Packer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -15,12 +17,14 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
  * Application class of our app.
  */
 public class Application extends android.app.Application {
+    private static DownloadManager mDownloadManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initUIL();
         initDefaultSources();
+        mDownloadManager = new DownloadManager(this);
     }
 
     private void initUIL() {
@@ -44,7 +48,7 @@ public class Application extends android.app.Application {
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
         String pack = preferences.getString(Config.SOURCES_STRING_KEY,
-                                            null);
+                null);
         if (pack == null) {
             String[] originalSources = getResources()
                     .getStringArray(R.array.rss_sources_array);
@@ -54,4 +58,14 @@ public class Application extends android.app.Application {
                     .commit();
         }
     }
+
+    public DownloadManager getDownloadManager() {
+        return mDownloadManager;
+    }
+
+    public static Application get(Context context) {
+        return (Application) context.getApplicationContext();
+    }
+
+
 }

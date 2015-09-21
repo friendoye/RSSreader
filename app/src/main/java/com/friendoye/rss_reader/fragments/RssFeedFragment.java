@@ -97,9 +97,15 @@ public class RssFeedFragment extends ListFragment {
         }
     }
 
-    public void setRefreshing(boolean check) {
+    public void setRefreshing(final boolean check) {
         if (mSwipeLayout != null) {
-            mSwipeLayout.setRefreshing(check);
+            // If we just call setRefreshing(true), animation won't appear
+            mSwipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeLayout.setRefreshing(check);
+                }
+            });
         }
     }
 
