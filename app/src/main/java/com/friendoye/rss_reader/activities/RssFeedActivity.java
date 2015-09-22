@@ -139,12 +139,13 @@ public class RssFeedActivity extends AppCompatActivity
 
     @Override
     public void onItemSelected(RssFeedItem item) {
-        Intent startIntent = new Intent(this, DetailsActivity.class);
-        startIntent.putExtra(DetailsActivity.LINK_KEY, item.link);
-        startIntent.putExtra(DetailsActivity.CLASS_NAME_KEY,
-                item.getClass().getName());
-        startActivity(startIntent);
-        setState(LoadingState.NONE);
+        if (!isFinishing()) {
+            Intent startIntent = new Intent(this, DetailsActivity.class);
+            startIntent.putExtra(DetailsActivity.LINK_KEY, item.link);
+            startIntent.putExtra(DetailsActivity.CLASS_NAME_KEY,
+                    item.getClass().getName());
+            startActivity(startIntent);
+        }
     }
 
     @Override

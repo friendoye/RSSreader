@@ -2,6 +2,7 @@ package com.friendoye.rss_reader.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -161,8 +162,18 @@ public class DetailsActivity extends AppCompatActivity
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        getSupportFragmentManager().beginTransaction()
+                .detach(mDataFragment)
+                .commit();
+
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+
         DatabaseManager.releaseHelper();
         mDatabaseHelper = null;
     }
