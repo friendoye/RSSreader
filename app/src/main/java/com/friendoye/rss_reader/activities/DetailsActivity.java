@@ -54,6 +54,15 @@ public class DetailsActivity extends AppCompatActivity
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper.class);
 
         if (savedInstanceState == null) {
+            /////////////////////////////
+            Fragment dataFragment = getSupportFragmentManager()
+                    .findFragmentByTag(DATA_FRAGMENT_TAG);
+            if (dataFragment != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(dataFragment)
+                        .commit();
+            }
+            /////////////////////////////
             Intent intent = getIntent();
             String link = intent.getStringExtra(LINK_KEY);
             Class configClass;
@@ -65,7 +74,7 @@ public class DetailsActivity extends AppCompatActivity
             if (link != null) {
                 RssFeedItem item = mDatabaseHelper.getFeedItem(link, configClass);
                 mDataFragment.setItem(item);
-                mState = LoadingState.LOADING;
+                mState = LoadingState.NONE;
             } else {
                 throw new RuntimeException("There's no news to show!");
             }
@@ -131,9 +140,12 @@ public class DetailsActivity extends AppCompatActivity
     protected void setState(LoadingState state) {
         mState = state;
         switch (state) {
+            case NONE:
+                mDataFragment.downloadFullInfo();
+                setState(LoadingState.LOADING);
+                break;
             case LOADING:
                 setForegroundFragment(mProgressFragment, PROGRESS_FRAGMENT_TAG);
-                mDataFragment.downloadFullInfo();
                 break;
             case SUCCESS:
                 setForegroundFragment(mViewFragment, VIEW_FRAGMENT_TAG);
@@ -159,15 +171,6 @@ public class DetailsActivity extends AppCompatActivity
         }
         outState.putString(STATE_KEY, mState.toString());
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        getSupportFragmentManager().beginTransaction()
-                .detach(mDataFragment)
-                .commit();
-
-        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     @Override

@@ -67,8 +67,10 @@ public class RssFeedItemFragment extends Fragment {
     public void downloadFullInfo() {
         if (mData != null) {
             RssParser parser = AbstractRssSourceFactory.getInstance(mData.source).getRssParser();
-            mTask = new RetrieveDescriptionTask(mData.link, parser);
-            mTask.execute();
+            if (mTask == null) {
+                mTask = new RetrieveDescriptionTask(mData.link, parser);
+                mTask.execute();
+            }
         }
     }
 
