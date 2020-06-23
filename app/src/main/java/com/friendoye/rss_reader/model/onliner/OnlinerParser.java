@@ -52,7 +52,7 @@ public class OnlinerParser extends RssParser {
         try {
             // News page
             final String[] newsPatterns = {
-                    "div[class=\"b-posts-1-item__text\"]"
+                    "div[class=\"news-text\"]"
             };
             description = retrieveText(doc, newsPatterns);
             if (description != null) {
@@ -64,7 +64,6 @@ public class OnlinerParser extends RssParser {
                     "div[class=\"b-opinions-body__content\"]"
             };
             description = retrieveText(doc, opinionPatterns);
-
         } catch (NullPointerException e) {
             throw new RuntimeException("No tag was found. Info: " + e);
         }

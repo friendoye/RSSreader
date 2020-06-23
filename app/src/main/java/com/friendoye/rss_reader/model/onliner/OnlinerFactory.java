@@ -8,7 +8,7 @@ import com.friendoye.rss_reader.model.RssParser;
  * Factory implementation for "Tut.by"
  */
 public class OnlinerFactory extends AbstractRssSourceFactory {
-    public static final String SOURCE = "http://www.onliner.by/feed";
+    public static final String SOURCE = "https://www.onliner.by/feed";
 
     public RssFeedItem getFeedItem() {
         return new OnlinerFeedItem();
