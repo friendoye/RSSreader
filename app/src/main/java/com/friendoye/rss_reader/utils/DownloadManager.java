@@ -43,7 +43,7 @@ public class DownloadManager {
         return mState;
     }
 
-    public synchronized void refreshData(String[] sources) {
+    public synchronized void refreshData(List<String> sources) {
         if (mState != LoadingState.LOADING) {
             mTask = new RefreshTask(mContext, sources);
             mState = LoadingState.LOADING;
@@ -77,9 +77,9 @@ public class DownloadManager {
         public static final String NOT_IO_EXCEPTION_TAG = "Exception";
 
         private Context mContext;
-        private String[] mSources;
+        private List<String> mSources;
 
-        public RefreshTask(Context context, String[] sources) {
+        public RefreshTask(Context context, List<String> sources) {
             this.mContext = context;
             this.mSources = sources;
         }

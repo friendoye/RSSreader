@@ -110,7 +110,7 @@ public class RssFeedFragment extends ListFragment {
         }
     }
 
-    public void setFeedItems(List<RssFeedItem> items) {
+    public void setFeedItems(@NonNull List<RssFeedItem> items) {
         mAdapter.setItems(items);
     }
 
