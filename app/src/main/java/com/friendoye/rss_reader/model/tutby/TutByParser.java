@@ -1,5 +1,7 @@
 package com.friendoye.rss_reader.model.tutby;
 
+import androidx.annotation.Nullable;
+
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.RssParser;
 
@@ -16,6 +18,7 @@ import java.io.IOException;
  */
 public class TutByParser extends RssParser {
 
+    @Nullable
     protected RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         RssFeedItem item = new TutByFeedItem();
@@ -45,7 +48,11 @@ public class TutByParser extends RssParser {
             }
         }
 
-        return item;
+        if (item.link != null && item.link.contains("news.tut.by")) {
+            return item;
+        } else {
+            return null;
+        }
     }
 
     public String retrieveDescription(Document doc)

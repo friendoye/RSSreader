@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.Xml;
 
+import androidx.annotation.Nullable;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.nodes.Document;
@@ -40,6 +42,7 @@ abstract public class RssParser {
         }
     }
 
+    @Nullable
     abstract protected RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException;
 
@@ -77,7 +80,9 @@ abstract public class RssParser {
         while (skipUntil(parser, "item")) {
             parser.require(XmlPullParser.START_TAG, null, "item");
             RssFeedItem item = reedItem(parser);
-            items.addFirst(item); // This method should be implemented
+            if (item != null) {
+                items.addFirst(item); // This method should be implemented
+            }
         }
 
         return items;

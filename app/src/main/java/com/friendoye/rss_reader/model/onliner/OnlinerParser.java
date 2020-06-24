@@ -1,5 +1,7 @@
 package com.friendoye.rss_reader.model.onliner;
 
+import androidx.annotation.Nullable;
+
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.RssParser;
 
@@ -16,6 +18,7 @@ import java.io.IOException;
  */
 public class OnlinerParser extends RssParser {
 
+    @Nullable
     protected RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         RssFeedItem item = new OnlinerFeedItem();
@@ -43,7 +46,11 @@ public class OnlinerParser extends RssParser {
             }
         }
 
-        return item;
+        if (item.link != null && item.link.contains("onliner.by")) {
+            return item;
+        } else {
+            return null;
+        }
     }
 
     public String retrieveDescription(Document doc)
