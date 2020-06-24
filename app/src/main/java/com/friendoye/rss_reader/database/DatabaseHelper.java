@@ -2,8 +2,9 @@ package com.friendoye.rss_reader.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;

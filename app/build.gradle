@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.0"
 
     defaultConfig {
         applicationId "com.friendoye.rss_reader"
-        minSdkVersion 8
-        targetSdkVersion 23
+        minSdkVersion 15
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
     }
@@ -30,8 +30,9 @@ android {
 
 dependencies {
     implementation 'net.hockeyapp.android:HockeySDK:3.5.0'
-    implementation 'com.android.support:appcompat-v7:23.0.1'
-    implementation 'com.android.support:support-v4:23.0.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'com.j256.ormlite:ormlite-android:4.48'
     implementation 'com.j256.ormlite:ormlite-core:4.48'
     implementation 'org.jsoup:jsoup:1.8.3'
