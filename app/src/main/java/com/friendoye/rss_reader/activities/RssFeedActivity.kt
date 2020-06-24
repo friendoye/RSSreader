@@ -24,7 +24,7 @@ import com.friendoye.rss_reader.utils.*
  */
 class RssFeedActivity : AppCompatActivity(), OnDataUsageListener,
     OnSourcesChangedListener,
-    DownloadManager.OnDownloadCompletedListener {
+    DownloadManager.OnDownloadStateChangedListener {
     private var mFeedFragment: RssFeedFragment? = null
     private var mState: LoadingState? = null
     private var mDatabaseHelper: DatabaseHelper? = null
@@ -84,7 +84,7 @@ class RssFeedActivity : AppCompatActivity(), OnDataUsageListener,
         }
     }
 
-    override fun onDownloadComplete(state: LoadingState) {
+    override fun onDownloadStateChanged(state: LoadingState) {
         setState(state)
     }
 

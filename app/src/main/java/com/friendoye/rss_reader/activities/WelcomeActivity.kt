@@ -2,10 +2,27 @@ package com.friendoye.rss_reader.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.*
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
+import androidx.ui.core.setContent
+import androidx.ui.foundation.Image
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.clickable
+import androidx.ui.foundation.currentTextStyle
+import androidx.ui.layout.*
+import androidx.ui.material.CircularProgressIndicator
+import androidx.ui.material.Surface
+import androidx.ui.res.colorResource
+import androidx.ui.res.imageResource
+import androidx.ui.res.stringResource
+import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.TextAlign
+import androidx.ui.tooling.preview.Preview
+import androidx.ui.unit.TextUnit
+import androidx.ui.unit.dp
 import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.database.DatabaseHelper
@@ -23,35 +40,51 @@ import net.hockeyapp.android.UpdateManager
  * 3) Error has occurred.
  */
 class WelcomeActivity : AppCompatActivity(),
-    DownloadManager.OnDownloadCompletedListener {
-    private var mWaitView: TextView? = null
-    private var mProgressBar: ProgressBar? = null
-    private var mTitleView: TextView? = null
-    private var mMessageView: TextView? = null
-    private var mState: LoadingState? = null
+    DownloadManager.OnDownloadStateChangedListener {
     private var mDatabaseHelper: DatabaseHelper? = null
-
     private lateinit var mDownloadManager: DownloadManager
     private var mSources: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_welcome)
-        mWaitView = findViewById<View>(R.id.waitTextView) as TextView
-        mProgressBar = findViewById<View>(R.id.progressBar) as ProgressBar
-        mTitleView = findViewById<View>(R.id.errorTitleView) as TextView
-        mMessageView = findViewById<View>(R.id.errorMessageView) as TextView
 
         mDownloadManager = Application.get(this).downloadManager
-        mDatabaseHelper =
-            DatabaseManager.getHelper(this, DatabaseHelper::class.java)
+        mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper::class.java)
         mSources = resources.getStringArray(R.array.rss_sources_array).toList()
+
         mDownloadManager.subscribe(this)
         if (savedInstanceState == null) {
             mDownloadManager.refreshData(mSources)
-            setState(LoadingState.LOADING)
-        } else {
-            setState(mDownloadManager.getState())
+        }
+
+        setContent {
+            val uiState: MutableState<WelcomeScreenState> = state {
+                WelcomeScreenState(
+                    retry = this::onRetry,
+                    loadingState = LoadingState.NONE
+                )
+            }
+            val (_, stateUpdate) = uiState
+
+            onActive {
+                val updateLoadingState = { loadingState: LoadingState ->
+                    val newState = if (loadingState == LoadingState.FAILURE && mDatabaseHelper!!.hasItems()) {
+                        LoadingState.SUCCESS
+                    } else {
+                        loadingState
+                    }
+                    stateUpdate(WelcomeScreenState(
+                        retry = this@WelcomeActivity::onRetry,
+                        loadingState = newState
+                    ))
+                }
+                mDownloadManager.subscribe(updateLoadingState)
+                onDispose {
+                    mDownloadManager.unsubscribe(updateLoadingState)
+                }
+            }
+
+            WelcomeScreenLayout(uiState)
         }
     }
 
@@ -59,6 +92,35 @@ class WelcomeActivity : AppCompatActivity(),
         super.onResume()
 //        checkForCrashes();
 //        checkForUpdates();
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mDownloadManager.unsubscribe(this)
+        DatabaseManager.releaseHelper()
+        mDatabaseHelper = null
+    }
+
+    override fun onDownloadStateChanged(state: LoadingState) {
+        when (state) {
+            LoadingState.SUCCESS -> {
+                val startIntent = Intent(this, RssFeedActivity::class.java)
+                startActivity(startIntent)
+                finish()
+            }
+            LoadingState.FAILURE -> if (mDatabaseHelper!!.hasItems()) {
+                val startIntent = Intent(this, RssFeedActivity::class.java)
+                startActivity(startIntent)
+                finish()
+            }
+        }
+    }
+
+    private fun onRetry(state: LoadingState) {
+        if (state != LoadingState.FAILURE) {
+            return
+        }
+        mDownloadManager.refreshData(mSources)
     }
 
     private fun checkForCrashes() {
@@ -69,63 +131,65 @@ class WelcomeActivity : AppCompatActivity(),
         // Remove this for store builds!
         UpdateManager.register(this, "84c5a3551a6c0bf92bb6f99c72e2ab9c")
     }
-
-    override fun onDownloadComplete(state: LoadingState) {
-        setState(state)
-    }
-
-    protected fun setState(state: LoadingState?) {
-        mState = state
-        when (state) {
-            LoadingState.LOADING -> showProgressBar()
-            LoadingState.SUCCESS -> {
-                val startIntent = Intent(this, RssFeedActivity::class.java)
-                startActivity(startIntent)
-                finish()
-            }
-            LoadingState.FAILURE -> if (mDatabaseHelper!!.hasItems()) {
-                setState(LoadingState.SUCCESS)
-            } else {
-                showError()
-            }
-        }
-    }
-
-    private fun showProgressBar() {
-        if (mProgressBar != null) {
-            mTitleView!!.visibility = View.GONE
-            mMessageView!!.visibility = View.GONE
-            mWaitView!!.visibility = View.VISIBLE
-            mProgressBar!!.visibility = View.VISIBLE
-        }
-    }
-
-    private fun showError() {
-        if (mProgressBar != null) {
-            mWaitView!!.visibility = View.GONE
-            mProgressBar!!.visibility = View.GONE
-            mTitleView!!.visibility = View.VISIBLE
-            mMessageView!!.visibility = View.VISIBLE
-        }
-    }
-
-    fun onClick(view: View) {
-        if (mState != LoadingState.FAILURE) {
-            return
-        }
-        when (view.id) {
-            R.id.container_layout -> if (NetworkHelper.isConnected(this)) {
-                mDownloadManager!!.refreshData(mSources)
-                setState(mDownloadManager!!.state)
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mDownloadManager.unsubscribe(this)
-        DatabaseManager.releaseHelper()
-        mDatabaseHelper = null
-    }
 }
 
+data class WelcomeScreenState(
+    val retry: (LoadingState) -> Unit,
+    val loadingState: LoadingState
+)
+
+@Preview(widthDp = 300, heightDp = 600)
+@Composable
+fun WelcomeScreenLayout() {
+    WelcomeScreenLayout(state {
+        WelcomeScreenState(retry = {}, loadingState = LoadingState.FAILURE)
+    })
+}
+
+@Composable
+fun WelcomeScreenLayout(stateHolder: MutableState<WelcomeScreenState>) {
+    val (state, _) = stateHolder
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = { state.retry(state.loadingState) }, indication = null),
+        color = colorResource(id = R.color.orange_500)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalGravity = Alignment.CenterHorizontally
+        ) {
+            when (state.loadingState) {
+                LoadingState.LOADING,
+                LoadingState.SUCCESS,
+                LoadingState.NONE -> {
+                    Text(
+                        text = stringResource(id = R.string.wait_text),
+                        fontSize = TextUnit.Sp(46),
+                        color = colorResource(id = R.color.amber_A400),
+                        textAlign = TextAlign.Center,
+                        style = currentTextStyle().copy(fontWeight = FontWeight.Bold)
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier.gravity(Alignment.CenterHorizontally),
+                        color = colorResource(id = R.color.amber_A400)
+                    )
+                }
+                LoadingState.FAILURE -> {
+                    Column {
+                        Image(
+                            modifier = Modifier.gravity(Alignment.CenterHorizontally),
+                            asset = imageResource(id = R.drawable.ic_warning_grey_300_36dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.welcome_network_error_message_text),
+                            color = colorResource(id = R.color.amber_A400),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
