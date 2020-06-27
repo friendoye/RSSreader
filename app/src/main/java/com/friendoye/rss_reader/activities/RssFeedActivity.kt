@@ -2,11 +2,8 @@ package com.friendoye.rss_reader.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.*
 import androidx.fragment.app.DialogFragment
 import androidx.ui.core.*
@@ -23,7 +20,6 @@ import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import coil.request.GetRequest
 import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.compose.SwipeToRefreshLayout
@@ -31,8 +27,6 @@ import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
 import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment
 import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment.OnSourcesChangedListener
-import com.friendoye.rss_reader.fragments.RssFeedFragment
-import com.friendoye.rss_reader.fragments.RssFeedFragment.OnDataUsageListener
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
@@ -46,7 +40,6 @@ import java.util.*
 class RssFeedActivity : AppCompatActivity(),
     OnSourcesChangedListener,
     DownloadManager.OnDownloadStateChangedListener {
-    private var mFeedFragment: RssFeedFragment? = null
     private var mDatabaseHelper: DatabaseHelper? = null
     private lateinit var mDownloadManager: DownloadManager
     private var mSources: List<String> = emptyList()
@@ -117,7 +110,6 @@ class RssFeedActivity : AppCompatActivity(),
             mDownloadManager!!.refreshData(mSources)
             setState(mDownloadManager!!.state)
         } else {
-            mFeedFragment!!.setRefreshing(false)
             Toast.makeText(
                 this, R.string.no_internet_connection_text,
                 Toast.LENGTH_LONG
