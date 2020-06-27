@@ -45,47 +45,28 @@ class WelcomeActivity : AppCompatActivity(),
     private lateinit var mDownloadManager: DownloadManager
     private var mSources: List<String> = emptyList()
 
+    private var uiState by mutableStateOf(
+        WelcomeScreenState(
+            retry = this::onRetry,
+            loadingState = LoadingState.NONE
+        )
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setContent {
+            WelcomeScreenLayout(uiState)
+        }
 
         mDownloadManager = Application.get(this).downloadManager
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper::class.java)
         mSources = resources.getStringArray(R.array.rss_sources_array).toList()
 
-        mDownloadManager.subscribe(this)
         if (savedInstanceState == null) {
             mDownloadManager.refreshData(mSources)
         }
-
-        setContent {
-            val uiState: MutableState<WelcomeScreenState> = state {
-                WelcomeScreenState(
-                    retry = this::onRetry,
-                    loadingState = LoadingState.NONE
-                )
-            }
-            val (_, stateUpdate) = uiState
-
-            onActive {
-                val updateLoadingState = { loadingState: LoadingState ->
-                    val newState = if (loadingState == LoadingState.FAILURE && mDatabaseHelper!!.hasItems()) {
-                        LoadingState.SUCCESS
-                    } else {
-                        loadingState
-                    }
-                    stateUpdate(WelcomeScreenState(
-                        retry = this@WelcomeActivity::onRetry,
-                        loadingState = newState
-                    ))
-                }
-                mDownloadManager.subscribe(updateLoadingState)
-                onDispose {
-                    mDownloadManager.unsubscribe(updateLoadingState)
-                }
-            }
-
-            WelcomeScreenLayout(uiState)
-        }
+        mDownloadManager.subscribe(this)
     }
 
     public override fun onResume() {
@@ -102,6 +83,11 @@ class WelcomeActivity : AppCompatActivity(),
     }
 
     override fun onDownloadStateChanged(state: LoadingState) {
+        changeStateOnDownloadStateChanged(state)
+        effectOnDownloadStateChanged(state)
+    }
+
+    private fun effectOnDownloadStateChanged(state: LoadingState) {
         when (state) {
             LoadingState.SUCCESS -> {
                 val startIntent = Intent(this, RssFeedActivity::class.java)
@@ -114,6 +100,18 @@ class WelcomeActivity : AppCompatActivity(),
                 finish()
             }
         }
+    }
+
+    private fun changeStateOnDownloadStateChanged(state: LoadingState) {
+        val newState = if (state == LoadingState.FAILURE && mDatabaseHelper!!.hasItems()) {
+            LoadingState.SUCCESS
+        } else {
+            state
+        }
+        uiState = WelcomeScreenState(
+            retry = this@WelcomeActivity::onRetry,
+            loadingState = newState
+        )
     }
 
     private fun onRetry(state: LoadingState) {
@@ -141,14 +139,13 @@ data class WelcomeScreenState(
 @Preview(widthDp = 300, heightDp = 600)
 @Composable
 fun WelcomeScreenLayout() {
-    WelcomeScreenLayout(state {
+    WelcomeScreenLayout(
         WelcomeScreenState(retry = {}, loadingState = LoadingState.FAILURE)
-    })
+    )
 }
 
 @Composable
-fun WelcomeScreenLayout(stateHolder: MutableState<WelcomeScreenState>) {
-    val (state, _) = stateHolder
+fun WelcomeScreenLayout(state: WelcomeScreenState) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
