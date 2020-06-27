@@ -21,6 +21,7 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import com.friendoye.rss_reader.Application
+import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.compose.SwipeToRefreshLayout
 import com.friendoye.rss_reader.database.DatabaseHelper
@@ -153,26 +154,6 @@ class RssFeedActivity : AppCompatActivity(),
         mSources = Packer.unpackAsStringArray(savedPack).toList()
     }
 }
-
-private val ORANGE_500 = Color(0xFFFF9800)
-private val ORANGE_700 = Color(0xFFF57C00)
-private val AMBER_A400 = Color(0xFFFFC400)
-
-private val LIGHT_COLOR_PALETTE = lightColorPalette(
-    primary = ORANGE_500,
-    primaryVariant = ORANGE_700,
-    secondary = AMBER_A400
-)
-
-// TODO: Add dark color theme
-//private val DarkThemeColors = darkColorPalette(
-//    primary = Red300,
-//    primaryVariant = Red700,
-//    onPrimary = Color.Black,
-//    secondary = Red300,
-//    onSecondary = Color.White,
-//    error = Red200
-//)
 
 data class RssFeedScreenState(
     val loadingState: LoadingState,
