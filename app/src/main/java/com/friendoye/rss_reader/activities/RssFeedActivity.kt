@@ -7,11 +7,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.Composable
+import androidx.compose.*
 import androidx.fragment.app.DialogFragment
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContentScale
 import androidx.ui.core.Modifier
+import androidx.ui.core.setContent
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
@@ -43,118 +44,76 @@ import java.util.*
 /**
  * This activity holds RssFeedFragment.
  */
-class RssFeedActivity : AppCompatActivity(), OnDataUsageListener,
+class RssFeedActivity : AppCompatActivity(),
     OnSourcesChangedListener,
     DownloadManager.OnDownloadStateChangedListener {
     private var mFeedFragment: RssFeedFragment? = null
-    private var mState: LoadingState? = null
     private var mDatabaseHelper: DatabaseHelper? = null
-
     private lateinit var mDownloadManager: DownloadManager
     private var mSources: List<String> = emptyList()
 
+    private var mState by mutableStateOf(
+        RssFeedScreenState(
+            loadingState = LoadingState.NONE,
+            isSwipeToRefreshInProgress = false,
+            rssFeedItems = emptyList(),
+            onRefresh = this::onRefresh,
+            onPickRssSources = this::openPickSourcesDialog,
+            onRssFeedItemClick = this::openRssFeedItemDetailsActivity
+        )
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_rss_feed)
-        val toolbar =
-            findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        if (mFeedFragment == null) {
-            mFeedFragment = supportFragmentManager
-                .findFragmentById(R.id.feed_fragment) as RssFeedFragment?
+
+        setContent {
+            RssFeedLayout(mState)
         }
+
         updateSources()
         mDatabaseHelper = DatabaseManager.getHelper(this, DatabaseHelper::class.java)
-        if (savedInstanceState == null) {
-            setState(LoadingState.NONE)
-        } else {
-            mState = LoadingState.valueOf(
-                savedInstanceState.getString(STATE_KEY)!!
-            )
-        }
         mDownloadManager = Application.get(this).downloadManager
+
         mDownloadManager.subscribe(this)
-        if (mState == LoadingState.LOADING) {
-            setState(mDownloadManager.getState())
-        }
-        mFeedFragment!!.setFeedItems(
-            mDatabaseHelper?.getAllFeedItems(mSources) ?: emptyList()
+        mState = mState.copy(
+            rssFeedItems = mDatabaseHelper!!.getAllFeedItems(mSources) ?: emptyList()
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (mState == LoadingState.LOADING) {
-            setState(mDownloadManager!!.state)
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_activity_rss_feed, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_pick_sources -> {
-                val newFragment: DialogFragment = SourcesListDialogFragment()
-                newFragment.show(supportFragmentManager, "sourcePicker")
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        mDownloadManager.unsubscribe(this)
+        DatabaseManager.releaseHelper()
+        mDatabaseHelper = null
     }
 
     override fun onDownloadStateChanged(state: LoadingState) {
         setState(state)
     }
 
-    protected fun setState(state: LoadingState?) {
-        mState = state
-        when (state) {
-            LoadingState.LOADING -> mFeedFragment!!.setRefreshing(true)
-            LoadingState.SUCCESS -> {
-                mFeedFragment!!.setRefreshing(false)
-                mFeedFragment!!.setFeedItems(mDatabaseHelper!!.getAllFeedItems(mSources) ?: emptyList())
-                setState(LoadingState.NONE)
-            }
-            LoadingState.FAILURE -> {
-                mFeedFragment!!.setRefreshing(false)
-                Toast.makeText(
-                    this, R.string.fail_to_refresh_text,
-                    Toast.LENGTH_LONG
-                ).show()
-                setState(LoadingState.NONE)
-            }
-            LoadingState.NONE -> {
-            }
-        }
-    }
-
     override fun onSourcesChanged() {
         updateSources()
-        mFeedFragment!!.setFeedItems(mDatabaseHelper?.getAllFeedItems(mSources) ?: emptyList())
+        mState = mState.copy(
+            rssFeedItems = mDatabaseHelper?.getAllFeedItems(mSources) ?: emptyList()
+        )
     }
 
-    private fun updateSources() {
-        val savedPack =
-            DataKeeper.restoreString(this, Config.SOURCES_STRING_KEY)
-        mSources = Packer.unpackAsStringArray(savedPack).toList()
+    private fun openPickSourcesDialog() {
+        val newFragment: DialogFragment = SourcesListDialogFragment()
+        newFragment.show(supportFragmentManager, "sourcePicker")
     }
 
-    override fun onItemSelected(item: RssFeedItem) {
-        if (!isFinishing) {
-            val startIntent = Intent(this, DetailsActivity::class.java)
-            startIntent.putExtra(DetailsActivity.LINK_KEY, item.link)
-            startIntent.putExtra(
-                DetailsActivity.CLASS_NAME_KEY,
-                item.javaClass.name
-            )
-            startActivity(startIntent)
-        }
+    private fun openRssFeedItemDetailsActivity(item: RssFeedItem) {
+        val startIntent = Intent(this, DetailsActivity::class.java)
+        startIntent.putExtra(DetailsActivity.LINK_KEY, item.link)
+        startIntent.putExtra(
+            DetailsActivity.CLASS_NAME_KEY,
+            item.javaClass.name
+        )
+        startActivity(startIntent)
     }
 
-    override fun onRefresh() {
+    private fun onRefresh() {
         if (NetworkHelper.isConnected(this)) {
             mDownloadManager!!.refreshData(mSources)
             setState(mDownloadManager!!.state)
@@ -167,20 +126,40 @@ class RssFeedActivity : AppCompatActivity(), OnDataUsageListener,
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(STATE_KEY, mState.toString())
-        super.onSaveInstanceState(outState)
+    protected fun setState(state: LoadingState?) {
+        when (state) {
+            LoadingState.LOADING -> {
+                mState = mState.copy(
+                    isSwipeToRefreshInProgress = true //?
+                )
+            }
+            LoadingState.SUCCESS -> {
+                mState = mState.copy(
+                    loadingState = LoadingState.NONE,
+                    isSwipeToRefreshInProgress = false, //?
+                    rssFeedItems = mDatabaseHelper!!.getAllFeedItems(mSources) ?: emptyList()
+                )
+            }
+            LoadingState.FAILURE -> {
+                mState = mState.copy(
+                    loadingState = LoadingState.NONE,
+                    isSwipeToRefreshInProgress = false //?
+                )
+
+                Toast.makeText(
+                    this, R.string.fail_to_refresh_text,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            LoadingState.NONE -> {
+            }
+        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mDownloadManager.unsubscribe(this)
-        DatabaseManager.releaseHelper()
-        mDatabaseHelper = null
-    }
-
-    companion object {
-        private const val STATE_KEY = "state key"
+    private fun updateSources() {
+        val savedPack =
+            DataKeeper.restoreString(this, Config.SOURCES_STRING_KEY)
+        mSources = Packer.unpackAsStringArray(savedPack).toList()
     }
 }
 
