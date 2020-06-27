@@ -9,10 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.*
 import androidx.fragment.app.DialogFragment
-import androidx.ui.core.Alignment
-import androidx.ui.core.ContentScale
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
+import androidx.ui.core.*
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
@@ -26,6 +23,7 @@ import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
+import coil.request.GetRequest
 import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.compose.SwipeToRefreshLayout
@@ -39,6 +37,7 @@ import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
 import com.friendoye.rss_reader.utils.*
+import dev.chrisbanes.accompanist.coil.CoilImage
 import java.util.*
 
 /**
@@ -189,7 +188,8 @@ data class RssFeedScreenState(
     val rssFeedItems: List<RssFeedItem>,
     val onRefresh: () -> Unit,
     val onPickRssSources: () -> Unit,
-    val onRssFeedItemClick: (RssFeedItem) -> Unit
+    val onRssFeedItemClick: (RssFeedItem) -> Unit,
+    val previewMode: Boolean = false
 )
 
 @Composable
@@ -228,13 +228,17 @@ fun RssFeedContentLayout(state: RssFeedScreenState) {
         }
     ) {
         LazyColumnItems(items = state.rssFeedItems) { item ->
-            RssFeedListItem(item, onClick = { state.onRssFeedItemClick(item) })
+            RssFeedListItem(
+                item,
+                onClick = { state.onRssFeedItemClick(item) },
+                previewMode = state.previewMode
+            )
         }
     }
 }
 
 @Composable
-fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit) {
+fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean = false) {
     Surface(
         color = Color.White,
         modifier = Modifier.height(108.dp).fillMaxWidth()
@@ -272,16 +276,28 @@ fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit) {
                 style = MaterialTheme.typography.caption
             )
 
-            // TODO: Replace image placeholder
-            Image(
-                asset = imageResource(id = R.drawable.image_post_placeholder),
-                modifier = Modifier.size(width = 120.dp, height = 80.dp)
+            if (previewMode) {
+                Image(
+                    asset = imageResource(id = R.drawable.image_post_placeholder),
+                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
                         .constrainAs(posterImage) {
                             linkTo(top = parent.top, bottom = parent.bottom)
                             end.linkTo(parent.end)
                         },
-                contentScale = ContentScale.Crop
-            )
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // TODO: Fix problem with image reloading
+                CoilImage(
+                    data = item.imageUrl,
+                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
+                        .constrainAs(posterImage) {
+                            linkTo(top = parent.top, bottom = parent.bottom)
+                            end.linkTo(parent.end)
+                        },
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }
@@ -291,26 +307,31 @@ val sampleFeed: List<RssFeedItem> = listOf(
         title = "Long Long\nLong Long\nLong Long Long Long Long Long Long Long Long Long title"
         description = "Long description"
         publicationDate = Date()
+        imageUrl = "https://content.onliner.by/news/thumbnail/8fdb0f7c04833a79406e62b7877d5e11.jpeg"
     },
     TutByFeedItem().apply {
         title = "Sample 1"
         description = "Sample 1 Long description"
         publicationDate = Date()
+        imageUrl = "https://content.onliner.by/news/thumbnail/8fdb0f7c04833a79406e62b7877d5e11.jpeg"
     },
     OnlinerFeedItem().apply {
         title = "Sample 2"
         description = "Sample 2 Long description"
         publicationDate = Date()
+        imageUrl = "https://content.onliner.by/news/thumbnail/8fdb0f7c04833a79406e62b7877d5e11.jpeg"
     },
     TutByFeedItem().apply {
         title = "Sample 3"
         description = "Sample 3 Long description"
         publicationDate = Date()
+        imageUrl = "https://content.onliner.by/news/thumbnail/8fdb0f7c04833a79406e62b7877d5e11.jpeg"
     },
     OnlinerFeedItem().apply {
         title = "Sample 4"
         description = "Sample 4 Long description"
         publicationDate = Date()
+        imageUrl = "https://content.onliner.by/news/thumbnail/8fdb0f7c04833a79406e62b7877d5e11.jpeg"
     }
 )
 
@@ -323,12 +344,13 @@ fun RssFeedLayoutPreview() {
         rssFeedItems = sampleFeed,
         onRefresh = {},
         onPickRssSources = {},
-        onRssFeedItemClick = {}
+        onRssFeedItemClick = {},
+        previewMode = true
     ))
 }
 
 @Preview(widthDp = 420, heightDp = 108)
 @Composable
 fun RssFeedListItem() {
-    RssFeedListItem(sampleFeed.first(), {})
+    RssFeedListItem(sampleFeed.first(), {}, previewMode = true)
 }
