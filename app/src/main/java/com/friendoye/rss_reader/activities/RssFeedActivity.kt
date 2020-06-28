@@ -7,10 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.*
 import androidx.fragment.app.DialogFragment
 import androidx.ui.core.*
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.clickable
+import androidx.ui.foundation.*
 import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -20,7 +17,9 @@ import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
+import androidx.ui.util.identityHashCode
 import com.friendoye.rss_reader.Application
+import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.compose.SwipeToRefreshLayout
@@ -28,6 +27,9 @@ import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
 import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment
 import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment.OnSourcesChangedListener
+import com.friendoye.rss_reader.dialogs.SourcesListDialogScreen
+import com.friendoye.rss_reader.dialogs.SourcesListDialogScreenPreview
+import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
@@ -51,8 +53,20 @@ class RssFeedActivity : AppCompatActivity(),
             isSwipeToRefreshInProgress = false,
             rssFeedItems = emptyList(),
             onRefresh = this::onRefresh,
-            onPickRssSources = this::openPickSourcesDialog,
+            onPickRssSources = if (FeatureFlags.USE_COMPOSE_DIALOGS) {
+                this::openPickSourcesComposeDialog
+            } else {
+                this::openPickSourcesDialog
+            },
             onRssFeedItemClick = this::openRssFeedItemDetailsActivity
+        )
+    )
+
+    private var mSourcesDialogState by mutableStateOf(
+        SourcesListDialogScreenState(
+            isShowing = false,
+            options = emptyMap(),
+            onOptionsUpdated = this::onSourcesChanged
         )
     )
 
@@ -60,7 +74,28 @@ class RssFeedActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
 
         setContent {
-            RssFeedLayout(mState)
+            MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+                RssFeedLayout(mState)
+                if (FeatureFlags.USE_COMPOSE_DIALOGS) {
+                    if (mSourcesDialogState.isShowing) {
+                        SourcesListDialogScreen(
+                            sourceOptions = mSourcesDialogState.options,
+                            onApplySourceOptionsRequest = { newItems ->
+                                mSourcesDialogState = mSourcesDialogState.copy(
+                                    isShowing = false,
+                                    options = newItems
+                                )
+                                mSourcesDialogState.onOptionsUpdated(newItems)
+                            },
+                            onCloseRequest = {
+                                mSourcesDialogState = mSourcesDialogState.copy(
+                                    isShowing = false
+                                )
+                            }
+                        )
+                    }
+                }
+            }
         }
 
         updateSources()
@@ -89,6 +124,19 @@ class RssFeedActivity : AppCompatActivity(),
         mState = mState.copy(
             rssFeedItems = mDatabaseHelper?.getAllFeedItems(mSources) ?: emptyList()
         )
+    }
+
+    private fun onSourcesChanged(sourceSelection: Map<String, Boolean>) {
+        val pack = Packer.packCollection(
+            sourceSelection.filterValues { isSelected -> isSelected }
+                .keys.toTypedArray()
+        )
+        DataKeeper.saveString(this, Config.SOURCES_STRING_KEY, pack)
+        onSourcesChanged()
+    }
+
+    private fun openPickSourcesComposeDialog() {
+        mSourcesDialogState = mSourcesDialogState.copy(isShowing = true)
     }
 
     private fun openPickSourcesDialog() {
@@ -152,6 +200,9 @@ class RssFeedActivity : AppCompatActivity(),
         val savedPack =
             DataKeeper.restoreString(this, Config.SOURCES_STRING_KEY)
         mSources = Packer.unpackAsStringArray(savedPack).toList()
+        mSourcesDialogState = mSourcesDialogState.copy(
+            options = getActiveSources(this)
+        )
     }
 }
 
@@ -165,26 +216,30 @@ data class RssFeedScreenState(
     val previewMode: Boolean = false
 )
 
+data class SourcesListDialogScreenState(
+    val isShowing: Boolean,
+    val options: Map<String, Boolean>,
+    val onOptionsUpdated: (Map<String, Boolean>) -> Unit
+)
+
 @Composable
 fun RssFeedLayout(state: RssFeedScreenState) {
-    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
-        Column(horizontalGravity = Alignment.CenterHorizontally) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        // TODO: use string resource
-                        title = { Text("RSS Feed") },
-                        elevation = 4.dp,
-                        actions = {
-                            IconButton(onClick = state.onPickRssSources) {
-                                Icon(imageResource(R.drawable.ic_list_white_36dp))
-                            }
+    Column(horizontalGravity = Alignment.CenterHorizontally) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    // TODO: use string resource
+                    title = { Text("RSS Feed") },
+                    elevation = 4.dp,
+                    actions = {
+                        IconButton(onClick = state.onPickRssSources) {
+                            Icon(imageResource(R.drawable.ic_list_white_36dp))
                         }
-                    )
-                }
-            ) {
-                RssFeedContentLayout(state)
+                    }
+                )
             }
+        ) {
+            RssFeedContentLayout(state)
         }
     }
 }
@@ -311,15 +366,19 @@ val sampleFeed: List<RssFeedItem> = listOf(
 @Preview(widthDp = 300, heightDp = 500)
 @Composable
 fun RssFeedLayoutPreview() {
-    RssFeedLayout(RssFeedScreenState(
-        loadingState = LoadingState.NONE,
-        isSwipeToRefreshInProgress = false,
-        rssFeedItems = sampleFeed,
-        onRefresh = {},
-        onPickRssSources = {},
-        onRssFeedItemClick = {},
-        previewMode = true
-    ))
+    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+        RssFeedLayout(
+            RssFeedScreenState(
+                loadingState = LoadingState.NONE,
+                isSwipeToRefreshInProgress = false,
+                rssFeedItems = sampleFeed,
+                onRefresh = {},
+                onPickRssSources = {},
+                onRssFeedItemClick = {},
+                previewMode = true
+            )
+        )
+    }
 }
 
 @Preview(widthDp = 420, heightDp = 108)

@@ -125,6 +125,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return list.size() == 0 ? null : list;
     }
 
+    @NonNull
     public synchronized RssFeedItem getFeedItem(String link, Class itemClass) {
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
         return dao.queryForEq(RssFeedItem.LINK_KEY, link).get(0);

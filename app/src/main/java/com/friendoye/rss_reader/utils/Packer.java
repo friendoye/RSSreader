@@ -1,6 +1,7 @@
 package com.friendoye.rss_reader.utils;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Helper class for packing several Strings as one String.

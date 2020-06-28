@@ -30,6 +30,7 @@ import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
 import com.friendoye.rss_reader.fragments.RssFeedItemFragment
+import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
 import dev.chrisbanes.accompanist.coil.CoilImage
@@ -67,30 +68,8 @@ class DetailsActivity : AppCompatActivity(),
 
         var loadingState = LoadingState.NONE
         if (savedInstanceState == null) {
-            /////////////////////////////
-            val dataFragment = supportFragmentManager
-                .findFragmentByTag(DATA_FRAGMENT_TAG)
-            if (dataFragment != null) {
-                supportFragmentManager.beginTransaction()
-                    .remove(dataFragment)
-                    .commit()
-            }
-            /////////////////////////////
-            val intent = intent
-            val link = intent.getStringExtra(LINK_KEY)
-            val configClass: Class<*>
-            configClass = try {
-                Class.forName(intent.getStringExtra(CLASS_NAME_KEY))
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-            if (link != null) {
-                val item = mDatabaseHelper!!.getFeedItem(link, configClass)
-                mDataFragment!!.item = item
-                loadingState = LoadingState.NONE
-            } else {
-                throw RuntimeException("There's no news to show!")
-            }
+            mDataFragment!!.item = retrieveRssFeedItem()
+            loadingState = LoadingState.NONE
         } else {
             val stateString = savedInstanceState.getString(STATE_KEY)
             loadingState = LoadingState.valueOf(stateString!!)
@@ -104,6 +83,22 @@ class DetailsActivity : AppCompatActivity(),
             )
         }
         setState(loadingState)
+    }
+
+    private fun retrieveRssFeedItem(): RssFeedItem {
+        val intent = intent
+        val link = intent.getStringExtra(LINK_KEY)
+        val configClass: Class<*>
+        configClass = try {
+            Class.forName(intent.getStringExtra(CLASS_NAME_KEY))
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+        if (link != null) {
+            return mDatabaseHelper!!.getFeedItem(link, configClass)
+        } else {
+            throw RuntimeException("There's no news to show!")
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
