@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.fragments;
+package com.friendoye.rss_reader.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;

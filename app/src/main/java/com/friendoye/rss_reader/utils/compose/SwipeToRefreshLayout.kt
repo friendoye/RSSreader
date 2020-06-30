@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.friendoye.rss_reader.compose
+package com.friendoye.rss_reader.utils.compose
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationBuilder

@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.activities
+package com.friendoye.rss_reader.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -29,7 +29,6 @@ import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
-import com.friendoye.rss_reader.fragments.RssFeedItemFragment
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
@@ -131,7 +130,9 @@ class DetailsActivity : AppCompatActivity(),
         if (mDataFragment == null) {
             mDataFragment = RssFeedItemFragment()
             fragmentManager.beginTransaction()
-                .add(mDataFragment!!, DATA_FRAGMENT_TAG)
+                .add(mDataFragment!!,
+                    DATA_FRAGMENT_TAG
+                )
                 .commit()
         }
     }

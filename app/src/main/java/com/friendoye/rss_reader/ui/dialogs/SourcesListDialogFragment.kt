@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.dialogs
+package com.friendoye.rss_reader.ui.dialogs
 
 import android.app.Activity
 import android.app.Dialog
@@ -28,8 +28,8 @@ import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
-import com.friendoye.rss_reader.compose.AlertDialogButtonLayout
-import com.friendoye.rss_reader.compose.MultiChoiceAlertDialog
+import com.friendoye.rss_reader.utils.compose.AlertDialogButtonLayout
+import com.friendoye.rss_reader.utils.compose.MultiChoiceAlertDialog
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.DataKeeper
 import com.friendoye.rss_reader.utils.Packer

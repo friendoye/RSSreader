@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.activities
+package com.friendoye.rss_reader.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,18 +17,16 @@ import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import androidx.ui.util.identityHashCode
 import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
-import com.friendoye.rss_reader.compose.SwipeToRefreshLayout
+import com.friendoye.rss_reader.utils.compose.SwipeToRefreshLayout
 import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
-import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment
-import com.friendoye.rss_reader.dialogs.SourcesListDialogFragment.OnSourcesChangedListener
-import com.friendoye.rss_reader.dialogs.SourcesListDialogScreen
-import com.friendoye.rss_reader.dialogs.SourcesListDialogScreenPreview
+import com.friendoye.rss_reader.ui.dialogs.SourcesListDialogFragment
+import com.friendoye.rss_reader.ui.dialogs.SourcesListDialogFragment.OnSourcesChangedListener
+import com.friendoye.rss_reader.ui.dialogs.SourcesListDialogScreen
 import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
@@ -384,5 +382,9 @@ fun RssFeedLayoutPreview() {
 @Preview(widthDp = 420, heightDp = 108)
 @Composable
 fun RssFeedListItem() {
-    RssFeedListItem(sampleFeed.first(), {}, previewMode = true)
+    RssFeedListItem(
+        sampleFeed.first(),
+        {},
+        previewMode = true
+    )
 }
