@@ -71,6 +71,15 @@ dependencies {
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     implementation "io.coil-kt:coil:0.11.0"
 
+    // Workflows
+    def workflows_version = "1.0.0-alpha.1"
+    implementation "com.squareup.workflow:workflow-core-jvm:$workflows_version"
+    implementation "com.squareup.workflow:workflow-runtime-jvm:$workflows_version"
+    implementation "com.squareup.workflow:workflow-ui-core-android:$workflows_version"
+    def workflows_compose_version = "0.30.0"
+    implementation "com.squareup.workflow:workflow-ui-core-compose:$workflows_compose_version"
+    implementation "com.squareup.workflow:workflow-ui-compose-tooling:$workflows_compose_version"
+
     // DB
     implementation 'com.j256.ormlite:ormlite-android:4.48'
     implementation 'com.j256.ormlite:ormlite-core:4.48'
