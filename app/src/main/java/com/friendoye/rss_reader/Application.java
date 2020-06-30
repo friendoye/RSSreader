@@ -18,10 +18,12 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
  */
 public class Application extends android.app.Application {
     private static DownloadManager mDownloadManager;
+    private static Application instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         initUIL();
         initDefaultSources();
         mDownloadManager = new DownloadManager(this);
@@ -67,5 +69,7 @@ public class Application extends android.app.Application {
         return (Application) context.getApplicationContext();
     }
 
-
+    public static Application getInstance() {
+        return instance;
+    }
 }

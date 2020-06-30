@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.friendoye.rss_reader.database.DatabaseHelper;
 import com.friendoye.rss_reader.database.DatabaseManager;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
@@ -27,26 +29,28 @@ public class DownloadManager {
     private RefreshTask mTask;
     private Context mContext;
 
-    private ArrayList<OnDownloadCompletedListener> observers;
+    private ArrayList<OnDownloadStateChangedListener> observers;
 
-    public interface OnDownloadCompletedListener {
-        void onDownloadComplete(LoadingState state);
+    public interface OnDownloadStateChangedListener {
+        void onDownloadStateChanged(LoadingState state);
     }
 
     public DownloadManager(Context context) {
         mContext = context;
-        mState = LoadingState.SUCCESS;
+        mState = LoadingState.NONE;
         observers = new ArrayList<>();
     }
 
+    @NonNull
     public synchronized LoadingState getState() {
         return mState;
     }
 
-    public synchronized void refreshData(String[] sources) {
+    public synchronized void refreshData(List<String> sources) {
         if (mState != LoadingState.LOADING) {
             mTask = new RefreshTask(mContext, sources);
             mState = LoadingState.LOADING;
+            notifyObservers();
             mTask.execute();
         }
     }
@@ -58,16 +62,17 @@ public class DownloadManager {
     }
 
     private void notifyObservers() {
-        for (OnDownloadCompletedListener observer: observers) {
-            observer.onDownloadComplete(mState);
+        for (OnDownloadStateChangedListener observer: observers) {
+            observer.onDownloadStateChanged(mState);
         }
     }
 
-    public void subscribe(OnDownloadCompletedListener observer) {
+    public void subscribe(OnDownloadStateChangedListener observer) {
         observers.add(observer);
+        observer.onDownloadStateChanged(mState); //?
     }
 
-    public void unsubscribe(OnDownloadCompletedListener observer) {
+    public void unsubscribe(OnDownloadStateChangedListener observer) {
         boolean flag = observers.remove(observer);
         Log.i("DownloadManager","Unsubbscribe: " + flag);
     }
@@ -77,9 +82,9 @@ public class DownloadManager {
         public static final String NOT_IO_EXCEPTION_TAG = "Exception";
 
         private Context mContext;
-        private String[] mSources;
+        private List<String> mSources;
 
-        public RefreshTask(Context context, String[] sources) {
+        public RefreshTask(Context context, List<String> sources) {
             this.mContext = context;
             this.mSources = sources;
         }
@@ -91,6 +96,11 @@ public class DownloadManager {
         protected Boolean doInBackground(Void... params) {
             List<RssFeedItem> items;
 
+            try {
+                Thread.sleep(5_000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try {
                 DatabaseHelper databaseHelper = DatabaseManager
                         .getHelper(mContext, DatabaseHelper.class);

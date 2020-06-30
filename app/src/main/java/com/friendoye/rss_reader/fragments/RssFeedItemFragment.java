@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
@@ -30,6 +31,7 @@ public class RssFeedItemFragment extends Fragment {
     private OnDownloadCompletedListener mCallback;
     private RetrieveDescriptionTask mTask;
 
+    @Nullable
     private RssFeedItem mData;
 
     public interface OnDownloadCompletedListener {
@@ -68,7 +70,7 @@ public class RssFeedItemFragment extends Fragment {
     public void downloadFullInfo() {
         if (mData != null) {
             RssParser parser = AbstractRssSourceFactory.getInstance(mData.source).getRssParser();
-            if (mTask == null) {
+            if (mTask == null || mTask.isCancelled() || mTask.getStatus() == AsyncTask.Status.FINISHED) {
                 mTask = new RetrieveDescriptionTask(mData.link, parser);
                 mTask.execute();
             }
@@ -93,6 +95,7 @@ public class RssFeedItemFragment extends Fragment {
         }
     }
 
+    @Nullable
     public RssFeedItem getItem() {
         return mData;
     }

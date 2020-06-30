@@ -6,8 +6,8 @@
     <string name="title_activity_rss_feed">RSS Feed</string>
     <string name="title_activity_details">News</string>
 
-    <string name="network_error_title_text">Warning!</string>
     <string name="welcome_network_error_message_text">
+        Warning!\n
         Check your network connection and try again\n
         Please, tap to retry
     </string>

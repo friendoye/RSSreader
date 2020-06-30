@@ -55,6 +55,7 @@ abstract public class RssParser {
         try {
             String imageLink = blocks.get(0).attr("content");
             if (imageLink != null) {
+                // TODO: Replace with Coil
                 return ImageLoader.getInstance().loadImageSync(imageLink);
             } else {
                 Log.e(PARSE_EXCEPTION_TAG, "No link in tag!");

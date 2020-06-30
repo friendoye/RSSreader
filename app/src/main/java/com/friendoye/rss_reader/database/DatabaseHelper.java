@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.friendoye.rss_reader.R;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
@@ -107,7 +108,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return false;
     }
 
-    public synchronized List<RssFeedItem> getAllFeedItems(String[] sources) {
+    @Nullable
+    public synchronized List<RssFeedItem> getAllFeedItems(List<String> sources) {
         List<RssFeedItem> list = new LinkedList<>();
         List returnedList;
         for (String source: sources) {
@@ -123,6 +125,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return list.size() == 0 ? null : list;
     }
 
+    @NonNull
     public synchronized RssFeedItem getFeedItem(String link, Class itemClass) {
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);
         return dao.queryForEq(RssFeedItem.LINK_KEY, link).get(0);
