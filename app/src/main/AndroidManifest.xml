@@ -33,7 +33,7 @@
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".ui.DetailsActivity"
+            android:name=".ui.details.DetailsActivity"
             android:label="@string/title_activity_details"
             android:parentActivityName=".ui.RssFeedActivity"
             android:screenOrientation="portrait">

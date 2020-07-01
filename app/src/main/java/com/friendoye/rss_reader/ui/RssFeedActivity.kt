@@ -31,6 +31,7 @@ import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
+import com.friendoye.rss_reader.ui.details.DetailsActivity
 import com.friendoye.rss_reader.utils.*
 import dev.chrisbanes.accompanist.coil.CoilImage
 import java.util.*

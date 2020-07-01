@@ -53,6 +53,7 @@ public class OnlinerParser extends RssParser {
         }
     }
 
+    @Nullable
     public String retrieveDescription(Document doc)
             throws RuntimeException {
         String description;
