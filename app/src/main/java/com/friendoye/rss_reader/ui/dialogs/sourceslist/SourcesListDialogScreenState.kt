@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.ui.rssfeed
+package com.friendoye.rss_reader.ui.dialogs.sourceslist
 
 data class SourcesListDialogScreenState(
     val isShowing: Boolean,

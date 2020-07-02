@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.ui.rssfeed
+package com.friendoye.rss_reader.ui.dialogs.sourceslist
 
 import android.util.Log
 import androidx.compose.Composable

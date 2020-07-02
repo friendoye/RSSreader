@@ -3,6 +3,7 @@ package com.friendoye.rss_reader.ui.rssfeed
 import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.model.RssFeedItem
+import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Input
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output.NavigateToDetails
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output.NavigateToSourcesListDialog
@@ -20,7 +21,11 @@ class RssFeedWorkflow(
     private val sourcesStore: RssSourcesStore,
     private val databaseHelper: DatabaseHelper,
     private val toastShower: ToastShower
-) : StatefulWorkflow<Unit, RssFeedWorkflow.InternalState, Output, RssFeedScreenState>() {
+) : StatefulWorkflow<Input, RssFeedWorkflow.InternalState, Output, RssFeedScreenState>() {
+
+    data class Input(
+        val sources: List<String>
+    )
 
     data class InternalState(
         val loadingState: LoadingState,
@@ -35,23 +40,30 @@ class RssFeedWorkflow(
         object NavigateToSourcesListDialog : Output()
     }
 
-    override fun initialState(props: Unit, snapshot: Snapshot?): InternalState {
+    override fun initialState(props: Input, snapshot: Snapshot?): InternalState {
         return InternalState(
             loadingState = LoadingState.SUCCESS,
-            rssFeedItems = databaseHelper.getAllFeedItems(sourcesStore.getSources()) ?: emptyList()
+            rssFeedItems = databaseHelper.getAllFeedItems(props.sources) ?: emptyList()
+        )
+    }
+
+    override fun onPropsChanged(old: Input, new: Input, state: InternalState): InternalState {
+        return state.copy(
+            rssFeedItems = databaseHelper.getAllFeedItems(new.sources) ?: emptyList()
         )
     }
 
     override fun render(
-        props: Unit,
+        props: Input,
         state: InternalState,
         context: RenderContext<InternalState, Output>
     ): RssFeedScreenState {
         when (state.loadingState) {
             LoadingState.NONE,
             LoadingState.LOADING -> {
-                context.runningWorker(refreshWorker()) {
-                    updateLoadingState(it)
+                val sources = props.sources
+                context.runningWorker(refreshWorker(sources)) {
+                    updateLoadingState(it, sources)
                 }
             }
             LoadingState.FAILURE -> {
@@ -75,10 +87,10 @@ class RssFeedWorkflow(
 
     override fun snapshotState(state: InternalState): Snapshot = Snapshot.EMPTY
 
-    private fun refreshWorker(): Worker<LoadingState> {
+    private fun refreshWorker(sources: List<String>): Worker<LoadingState> {
         return RefreshFeedWorker(
             downloadManager,
-            sourcesStore.getSources()
+            sources
         )
     }
 
@@ -96,7 +108,7 @@ class RssFeedWorkflow(
         setOutput(NavigateToDetails(feedItem))
     }
 
-    private fun updateLoadingState(loadingState: LoadingState) = action("updateLoadingState") {
+    private fun updateLoadingState(loadingState: LoadingState, sources: List<String>) = action("updateLoadingState") {
         nextState = nextState.copy(
             loadingState = if (loadingState == LoadingState.FAILURE) {
                 LoadingState.NONE
@@ -104,7 +116,7 @@ class RssFeedWorkflow(
                 loadingState
             },
             rssFeedItems = if (loadingState == LoadingState.SUCCESS) {
-                databaseHelper.getAllFeedItems(sourcesStore.getSources()) ?: emptyList()
+                databaseHelper.getAllFeedItems(sources) ?: emptyList()
             } else {
                 nextState.rssFeedItems
             }

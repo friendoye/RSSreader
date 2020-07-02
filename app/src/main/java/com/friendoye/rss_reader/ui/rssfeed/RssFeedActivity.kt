@@ -2,44 +2,26 @@ package com.friendoye.rss_reader.ui.rssfeed
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.*
 import androidx.fragment.app.DialogFragment
 import androidx.ui.core.*
-import androidx.ui.foundation.*
-import androidx.ui.foundation.lazy.LazyColumnItems
-import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
-import androidx.ui.res.imageResource
-import androidx.ui.text.style.TextOverflow
-import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
 import com.friendoye.rss_reader.*
-import com.friendoye.rss_reader.R
-import com.friendoye.rss_reader.utils.compose.SwipeToRefreshLayout
-import com.friendoye.rss_reader.database.DatabaseHelper
-import com.friendoye.rss_reader.database.DatabaseManager
-import com.friendoye.rss_reader.ui.dialogs.SourcesListDialogFragment
-import com.friendoye.rss_reader.ui.dialogs.SourcesListDialogFragment.OnSourcesChangedListener
+import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogFragment
+import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogFragment.OnSourcesChangedListener
 import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.model.RssFeedItem
-import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
-import com.friendoye.rss_reader.model.tutby.TutByFeedItem
 import com.friendoye.rss_reader.ui.details.DetailsActivity
+import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogScreen
+import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogScreenState
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output
-import com.friendoye.rss_reader.ui.welcome.WelcomeScreen
-import com.friendoye.rss_reader.ui.welcome.WelcomeWorkflow
-import com.friendoye.rss_reader.utils.*
 import com.squareup.workflow.diagnostic.SimpleLoggingDiagnosticListener
 import com.squareup.workflow.ui.ViewEnvironment
 import com.squareup.workflow.ui.ViewRegistry
 import com.squareup.workflow.ui.compose.WorkflowContainer
-import dev.chrisbanes.accompanist.coil.CoilImage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.util.*
 
 /**
  * This activity holds RssFeedFragment.
@@ -48,6 +30,10 @@ import java.util.*
 class RssFeedActivity : AppCompatActivity(),
     OnSourcesChangedListener {
 
+    private var mSources by mutableStateOf(
+        DependenciesProvider.getSourcesStore().getActiveSources()
+    )
+
     private var mSourcesDialogState by mutableStateOf(
         SourcesListDialogScreenState(
             isShowing = false,
@@ -55,6 +41,7 @@ class RssFeedActivity : AppCompatActivity(),
             onOptionsUpdated = this::onSourcesChanged
         )
     )
+    private val sourcesStore = DependenciesProvider.getSourcesStore()
 
     private val viewRegistry = ViewRegistry(RssFeedScreen)
     private val viewEnvironment = ViewEnvironment(viewRegistry)
@@ -62,15 +49,18 @@ class RssFeedActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        updateSources()
+
         setContent {
             MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
                 WorkflowContainer(
                     workflow = RssFeedWorkflow(
                         DependenciesProvider.getDownloadManager(),
-                        DependenciesProvider.getSourcesStore(),
+                        sourcesStore,
                         DependenciesProvider.getDatabaseHelper(),
                         DependenciesProvider.getToastShower()
                     ),
+                    props = RssFeedWorkflow.Input(mSources),
                     viewEnvironment = viewEnvironment,
                     modifier = Modifier.fillMaxSize(),
                     diagnosticListener = SimpleLoggingDiagnosticListener(),
@@ -89,25 +79,25 @@ class RssFeedActivity : AppCompatActivity(),
                         }
                     }
                 )
-//                if (FeatureFlags.USE_COMPOSE_DIALOGS) {
-//                    if (mSourcesDialogState.isShowing) {
-//                        SourcesListDialogScreen(
-//                            sourceOptions = mSourcesDialogState.options,
-//                            onApplySourceOptionsRequest = { newItems ->
-//                                mSourcesDialogState = mSourcesDialogState.copy(
-//                                    isShowing = false,
-//                                    options = newItems
-//                                )
-//                                mSourcesDialogState.onOptionsUpdated(newItems)
-//                            },
-//                            onCloseRequest = {
-//                                mSourcesDialogState = mSourcesDialogState.copy(
-//                                    isShowing = false
-//                                )
-//                            }
-//                        )
-//                    }
-//                }
+                if (FeatureFlags.USE_COMPOSE_DIALOGS) {
+                    if (mSourcesDialogState.isShowing) {
+                        SourcesListDialogScreen(
+                            sourceOptions = mSourcesDialogState.options,
+                            onApplySourceOptionsRequest = { newItems ->
+                                mSourcesDialogState = mSourcesDialogState.copy(
+                                    isShowing = false,
+                                    options = newItems
+                                )
+                                mSourcesDialogState.onOptionsUpdated(newItems)
+                            },
+                            onCloseRequest = {
+                                mSourcesDialogState = mSourcesDialogState.copy(
+                                    isShowing = false
+                                )
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -117,11 +107,10 @@ class RssFeedActivity : AppCompatActivity(),
     }
 
     private fun onSourcesChanged(sourceSelection: Map<String, Boolean>) {
-        val pack = Packer.packCollection(
+        sourcesStore.setActiveSources(
             sourceSelection.filterValues { isSelected -> isSelected }
-                .keys.toTypedArray()
+                .keys.toList()
         )
-        DataKeeper.saveString(this, Config.SOURCES_STRING_KEY, pack)
         onSourcesChanged()
     }
 
@@ -130,7 +119,8 @@ class RssFeedActivity : AppCompatActivity(),
     }
 
     private fun openPickSourcesDialog() {
-        val newFragment: DialogFragment = SourcesListDialogFragment()
+        val newFragment: DialogFragment =
+            SourcesListDialogFragment()
         newFragment.show(supportFragmentManager, "sourcePicker")
     }
 
@@ -144,6 +134,14 @@ class RssFeedActivity : AppCompatActivity(),
         startActivity(startIntent)
     }
 
+    private fun updateSources() {
+        mSources = sourcesStore.getActiveSources()
+        mSourcesDialogState = mSourcesDialogState.copy(
+            options = getActiveSources(this)
+        )
+    }
+
+// TODO: Make it as side-effects
 //    private fun onRefresh() {
 //        if (NetworkHelper.isConnected(this)) {
 //            mDownloadManager!!.refreshData(mSources)
@@ -155,7 +153,6 @@ class RssFeedActivity : AppCompatActivity(),
 //            ).show()
 //        }
 //    }
-
 //    protected fun setState(state: LoadingState?) {
 //        when (state) {
 //            LoadingState.FAILURE -> {
@@ -163,7 +160,6 @@ class RssFeedActivity : AppCompatActivity(),
 //                    loadingState = LoadingState.NONE,
 //                    isSwipeToRefreshInProgress = false //?
 //                )
-//
 //                Toast.makeText(
 //                    this, R.string.fail_to_refresh_text,
 //                    Toast.LENGTH_LONG
@@ -171,10 +167,4 @@ class RssFeedActivity : AppCompatActivity(),
 //            }
 //        }
 //    }
-
-    private fun updateSources() {
-        mSourcesDialogState = mSourcesDialogState.copy(
-            options = getActiveSources(this)
-        )
-    }
 }

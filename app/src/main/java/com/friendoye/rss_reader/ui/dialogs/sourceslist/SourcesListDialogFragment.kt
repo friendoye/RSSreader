@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.ui.dialogs
+package com.friendoye.rss_reader.ui.dialogs.sourceslist
 
 import android.app.Activity
 import android.app.Dialog
@@ -6,30 +6,11 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.DialogInterface.OnMultiChoiceClickListener
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.clickable
-import androidx.ui.layout.*
-import androidx.ui.material.Checkbox
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TextButton
-import androidx.ui.res.stringResource
-import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
-import com.friendoye.rss_reader.utils.compose.AlertDialogButtonLayout
-import com.friendoye.rss_reader.utils.compose.MultiChoiceAlertDialog
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.DataKeeper
 import com.friendoye.rss_reader.utils.Packer
@@ -105,11 +86,9 @@ class SourcesListDialogFragment : AppCompatDialogFragment(),
 
         // Dialog shouldn't be dismissed, if there are no selected sources.
         // For that purpose here was added this listener.
-        val dialog =
-            dialog as AlertDialog?
+        val dialog = dialog as AlertDialog?
         if (dialog != null) {
-            val positiveButton =
-                dialog.getButton(Dialog.BUTTON_POSITIVE)
+            val positiveButton = dialog.getButton(Dialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener(View.OnClickListener {
                 val context: Context? = activity
                 val savedPack = DataKeeper.restoreString(
