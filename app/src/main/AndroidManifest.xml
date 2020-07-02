@@ -28,19 +28,19 @@
         </activity>
 
         <activity
-            android:name=".ui.RssFeedActivity"
+            android:name=".ui.rssfeed.RssFeedActivity"
             android:label="@string/title_activity_rss_feed"
             android:screenOrientation="portrait"/>
 
         <activity
             android:name=".ui.details.DetailsActivity"
             android:label="@string/title_activity_details"
-            android:parentActivityName=".ui.RssFeedActivity"
+            android:parentActivityName=".ui.rssfeed.RssFeedActivity"
             android:screenOrientation="portrait">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.friendoye.rss_reader.ui.RssFeedActivity" />
+                android:value="com.friendoye.rss_reader.ui.rssfeed.RssFeedActivity" />
 
         </activity>
 

@@ -51,7 +51,7 @@ class WelcomeWorkflow(
     private fun refreshWorker(): Worker<LoadingState> {
         return RefreshFeedWorker(
             downloadManager,
-            sourcesStore.getSources()
+            sourcesStore.getAllSources()
         )
     }
 

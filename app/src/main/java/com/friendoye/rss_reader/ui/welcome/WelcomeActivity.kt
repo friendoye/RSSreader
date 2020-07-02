@@ -7,7 +7,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.layout.*
 import com.friendoye.rss_reader.DependenciesProvider
-import com.friendoye.rss_reader.ui.RssFeedActivity
+import com.friendoye.rss_reader.ui.rssfeed.RssFeedActivity
 import com.squareup.workflow.diagnostic.SimpleLoggingDiagnosticListener
 import com.squareup.workflow.ui.ViewEnvironment
 import com.squareup.workflow.ui.ViewRegistry
