@@ -33,11 +33,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         setContent {
             WorkflowContainer(
-                workflow = WelcomeWorkflow(
-                    DependenciesProvider.getDownloadManager(),
-                    DependenciesProvider.getSourcesStore(),
-                    DependenciesProvider.getDatabaseHelper()
-                ),
+                workflow = DependenciesProvider.provideWelcomeWorkflow(),
                 viewEnvironment = viewEnvironment,
                 modifier = Modifier.fillMaxSize(),
                 diagnosticListener = SimpleLoggingDiagnosticListener(),

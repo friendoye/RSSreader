@@ -31,7 +31,7 @@ class DetailsActivity : AppCompatActivity() {
 
         setContent {
             WorkflowContainer(
-                workflow = DetailsWorkflow(
+                workflow = DependenciesProvider.provideDetailsWorkflow(
                     retrieveRssFeedItem()
                 ),
                 viewEnvironment = viewEnvironment,

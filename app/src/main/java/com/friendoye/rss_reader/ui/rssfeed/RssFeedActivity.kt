@@ -54,12 +54,7 @@ class RssFeedActivity : AppCompatActivity(),
         setContent {
             MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
                 WorkflowContainer(
-                    workflow = RssFeedWorkflow(
-                        DependenciesProvider.getDownloadManager(),
-                        sourcesStore,
-                        DependenciesProvider.getDatabaseHelper(),
-                        DependenciesProvider.getToastShower()
-                    ),
+                    workflow = DependenciesProvider.provideRssFeedWorkflow(),
                     props = RssFeedWorkflow.Input(mSources),
                     viewEnvironment = viewEnvironment,
                     modifier = Modifier.fillMaxSize(),
