@@ -21,29 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- TODO: Unlock all orientations -->
-        <activity
-            android:name=".ui.welcome.WelcomeActivity"
-            android:noHistory="true"
-            android:screenOrientation="portrait">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-        <activity
-            android:name=".ui.rssfeed.RssFeedActivity"
-            android:label="@string/title_activity_rss_feed"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.details.DetailsActivity"
-            android:label="@string/title_activity_details"
-            android:parentActivityName=".ui.rssfeed.RssFeedActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.friendoye.rss_reader.ui.rssfeed.RssFeedActivity" />
-        </activity>
+
         <activity
             android:name="net.hockeyapp.android.UpdateActivity"
             android:screenOrientation="portrait" />

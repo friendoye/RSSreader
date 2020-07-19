@@ -52,7 +52,7 @@ fun RssFeedScreenLayout(
     legacyOpenPickSourcesDialog: () -> Unit
 ) {
     var isDialogVisible by state { false }
-    var legacyOpenPickSourcesDialogCallback = remember { legacyOpenPickSourcesDialog }
+    val legacyOpenPickSourcesDialogCallback = remember { legacyOpenPickSourcesDialog }
 
     onActive {
         updateSources()
