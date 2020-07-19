@@ -74,25 +74,6 @@ class RssFeedActivity : AppCompatActivity(),
                         }
                     }
                 )
-                if (FeatureFlags.USE_COMPOSE_DIALOGS) {
-                    if (mSourcesDialogState.isShowing) {
-                        SourcesListDialogScreen(
-                            sourceOptions = mSourcesDialogState.options,
-                            onApplySourceOptionsRequest = { newItems ->
-                                mSourcesDialogState = mSourcesDialogState.copy(
-                                    isShowing = false,
-                                    options = newItems
-                                )
-                                mSourcesDialogState.onOptionsUpdated(newItems)
-                            },
-                            onCloseRequest = {
-                                mSourcesDialogState = mSourcesDialogState.copy(
-                                    isShowing = false
-                                )
-                            }
-                        )
-                    }
-                }
             }
         }
     }

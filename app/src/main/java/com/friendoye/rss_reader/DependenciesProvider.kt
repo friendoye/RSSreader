@@ -4,7 +4,6 @@ import com.friendoye.rss_reader.utils.RssSourcesStore
 import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.database.DatabaseManager
 import com.friendoye.rss_reader.model.RssFeedItem
-import com.friendoye.rss_reader.ui.MainWorkflow
 import com.friendoye.rss_reader.ui.details.DetailsWorkflow
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow
 import com.friendoye.rss_reader.ui.welcome.WelcomeWorkflow
@@ -35,12 +34,4 @@ object DependenciesProvider {
         getToastShower()
     )
     fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(item)
-    @ExperimentalCoroutinesApi
-    fun provideMainWorkflow() = MainWorkflow(
-        welcomeWorkflow = provideWelcomeWorkflow(),
-        rssFeedWorkflow = provideRssFeedWorkflow(),
-        detailsWorkflowFactory = ::provideDetailsWorkflow,
-
-        rssSourcesStore = getSourcesStore()
-    )
 }

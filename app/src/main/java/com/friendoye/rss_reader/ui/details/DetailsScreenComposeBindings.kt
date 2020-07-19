@@ -1,9 +1,8 @@
 package com.friendoye.rss_reader.ui.details
 
-import androidx.compose.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.core.ContentScale
-import androidx.ui.core.Modifier
+import androidx.compose.*
+import androidx.compose.onDispose
+import androidx.ui.core.*
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
@@ -23,6 +22,8 @@ import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
+import com.github.zsoltk.compose.backpress.AmbientBackPressHandler
+import com.squareup.workflow.ui.backPressedHandler
 import com.squareup.workflow.ui.compose.composedViewFactory
 import com.squareup.workflow.ui.compose.tooling.preview
 import dev.chrisbanes.accompanist.coil.CoilImage
