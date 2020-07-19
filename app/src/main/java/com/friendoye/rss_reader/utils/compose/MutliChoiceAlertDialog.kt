@@ -1,22 +1,13 @@
-package com.friendoye.rss_reader.compose
+package com.friendoye.rss_reader.utils.compose
 
 import androidx.compose.*
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.semantics.semantics
 import androidx.ui.foundation.*
-import androidx.ui.foundation.selection.selectable
-import androidx.ui.foundation.selection.toggleable
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.*
-import androidx.ui.layout.ColumnScope.gravity
-import androidx.ui.layout.RowScope.weight
 import androidx.ui.material.*
-import androidx.ui.res.stringResource
-import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
-import com.friendoye.rss_reader.R
 
 /** @see {@link androidx.ui.material.AlertDialog} */
 

@@ -46,9 +46,11 @@ abstract public class RssParser {
     abstract protected RssFeedItem reedItem(XmlPullParser parser)
             throws XmlPullParserException, IOException;
 
+    @Nullable
     abstract public String retrieveDescription(Document doc)
             throws RuntimeException;
 
+    @Nullable
     public Bitmap retrieveLargeImage(Document doc)
             throws RuntimeException {
         Elements blocks = doc.select("meta[property^=\"og:image\"]");
