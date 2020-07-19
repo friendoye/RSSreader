@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.domain.updateSources
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.DataKeeper
 import com.friendoye.rss_reader.utils.Packer
@@ -23,22 +24,9 @@ class SourcesListDialogFragment : AppCompatDialogFragment(),
     OnMultiChoiceClickListener, DialogInterface.OnClickListener {
     private var mSources: Array<String> = emptyArray()
     private var mSelectedSources: BooleanArray? = booleanArrayOf()
-    private var mCallback: OnSourcesChangedListener? = null
 
     interface OnSourcesChangedListener {
         fun onSourcesChanged()
-    }
-
-    override fun onAttach(context: Activity) {
-        super.onAttach(context)
-        mCallback = try {
-            context as OnSourcesChangedListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(
-                context.toString() + " must " +
-                        "implement OnSourcesChangedListener!"
-            )
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,9 +99,7 @@ class SourcesListDialogFragment : AppCompatDialogFragment(),
                         Config.SOURCES_STRING_KEY,
                         pack
                     )
-                    if (mCallback != null) {
-                        mCallback!!.onSourcesChanged()
-                    }
+                    updateSources()
                 }
                 dialog.dismiss()
             })
@@ -138,11 +124,6 @@ class SourcesListDialogFragment : AppCompatDialogFragment(),
             SELECTED_SOURCES_KEY,
             mSelectedSources
         )
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mCallback = null
     }
 
     companion object {

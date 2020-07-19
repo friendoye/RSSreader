@@ -1,10 +1,7 @@
 package com.friendoye.rss_reader.ui.dialogs.sourceslist
 
 import android.util.Log
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.compose.state
+import androidx.compose.*
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
@@ -18,6 +15,7 @@ import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
 import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.utils.compose.AlertDialogButtonLayout
 import com.friendoye.rss_reader.utils.compose.MultiChoiceAlertDialog
 
@@ -25,6 +23,48 @@ private data class SourcesListDialogState(
     val items: Map<String, Boolean>,
     val canApplyChanges: Boolean
 )
+
+@Composable
+fun SourcesListDialogScreenLayout(
+    onClose: () -> Unit,
+    onOptionsUpdated: (Map<String, Boolean>) -> Unit
+) {
+    val onCloseCallback = remember { onClose }
+    var mSourcesDialogState by state {
+        SourcesListDialogScreenState(
+            isShowing = false,
+            options = emptyMap(),
+            onOptionsUpdated = onOptionsUpdated
+        )
+    }
+
+    onActive {
+        mSourcesDialogState = mSourcesDialogState.copy(
+            isShowing = true,
+            options = getActiveSources()
+        )
+    }
+
+    if (mSourcesDialogState.isShowing) {
+        SourcesListDialogScreen(
+            sourceOptions = mSourcesDialogState.options,
+            onApplySourceOptionsRequest = { newItems ->
+                mSourcesDialogState = mSourcesDialogState.copy(
+                    isShowing = false,
+                    options = newItems
+                )
+                mSourcesDialogState.onOptionsUpdated(newItems)
+                onCloseCallback()
+            },
+            onCloseRequest = {
+                mSourcesDialogState = mSourcesDialogState.copy(
+                    isShowing = false
+                )
+                onCloseCallback()
+            }
+        )
+    }
+}
 
 @Composable
 fun SourcesListDialogScreen(
