@@ -4,21 +4,17 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContentScale
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.clickable
+import androidx.ui.foundation.*
 import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
 import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.ui.RssReaderAppTheme
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
@@ -67,7 +63,7 @@ private val sampleFeed: List<RssFeedItem> = listOf(
 @Preview(widthDp = 300, heightDp = 500)
 @Composable
 fun RssFeedLayoutPreview() {
-    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+    RssReaderAppTheme(darkTheme = true) {
         RssFeedScreen.preview(
             RssFeedScreenState(
                 loadingState = LoadingState.NONE,
@@ -85,11 +81,13 @@ fun RssFeedLayoutPreview() {
 @Preview(widthDp = 420, heightDp = 108)
 @Composable
 fun RssFeedListItem() {
-    RssFeedListItem(
-        sampleFeed.first(),
-        {},
-        previewMode = true
-    )
+    RssReaderAppTheme(darkTheme = false) {
+        RssFeedListItem(
+            sampleFeed.first(),
+            {},
+            previewMode = true
+        )
+    }
 }
 
 val RssFeedScreen = composedViewFactory<RssFeedScreenState> { state, _ ->
@@ -100,6 +98,7 @@ val RssFeedScreen = composedViewFactory<RssFeedScreenState> { state, _ ->
                     // TODO: use string resource
                     title = { Text("RSS Feed") },
                     elevation = 4.dp,
+                    backgroundColor = MaterialTheme.colors.primary,
                     actions = {
                         IconButton(onClick = state.onPickRssSources) {
                             Icon(imageResource(R.drawable.ic_list_white_36dp))
@@ -137,7 +136,6 @@ fun RssFeedContentLayout(state: RssFeedScreenState) {
 @Composable
 fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean = false) {
     Surface(
-        color = Color.White,
         modifier = Modifier.height(108.dp).fillMaxWidth()
             .clickable(onClick = onClick, indication = null)
     ) {

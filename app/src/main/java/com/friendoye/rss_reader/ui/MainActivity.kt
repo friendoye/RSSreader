@@ -5,8 +5,6 @@ import android.os.Bundle
 import androidx.compose.*
 import androidx.fragment.app.DialogFragment
 import androidx.ui.core.setContent
-import androidx.ui.material.MaterialTheme
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogFragment
 import com.github.zsoltk.compose.backpress.AmbientBackPressHandler
 import com.github.zsoltk.compose.backpress.BackPressHandler
@@ -25,7 +23,7 @@ class MainActivity : AppCompatActivity() {
             Providers(
                 AmbientBackPressHandler provides backPressHandler
             ) {
-                MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+                RssReaderAppTheme {
                     Router<Screen>(Screen.Welcome) { backstack ->
                         when (val currentScreen = backstack.last()) {
                             Screen.Welcome -> WelcomeScreenLayout(backstack)
@@ -33,7 +31,10 @@ class MainActivity : AppCompatActivity() {
                                 backstack = backstack,
                                 legacyOpenPickSourcesDialog = ::openPickSourcesDialog
                             )
-                            is Screen.RssItemDetails -> RssItemDetailsScreenLayout(backstack, currentScreen)
+                            is Screen.RssItemDetails -> RssItemDetailsScreenLayout(
+                                backstack,
+                                currentScreen
+                            )
                         }
                     }
                 }

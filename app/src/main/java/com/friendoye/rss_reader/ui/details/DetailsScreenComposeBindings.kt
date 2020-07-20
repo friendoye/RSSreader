@@ -1,29 +1,24 @@
 package com.friendoye.rss_reader.ui.details
 
 import androidx.compose.*
-import androidx.compose.onDispose
 import androidx.ui.core.*
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.*
-import androidx.ui.layout.ColumnScope.gravity
 import androidx.ui.material.*
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
-import androidx.ui.res.colorResource
 import androidx.ui.res.imageResource
 import androidx.ui.res.stringResource
 import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.ui.RssReaderAppTheme
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
-import com.github.zsoltk.compose.backpress.AmbientBackPressHandler
-import com.squareup.workflow.ui.backPressedHandler
 import com.squareup.workflow.ui.compose.composedViewFactory
 import com.squareup.workflow.ui.compose.tooling.preview
 import dev.chrisbanes.accompanist.coil.CoilImage
@@ -45,44 +40,45 @@ fun LceLayoutErrorPreview() {
 @Preview
 @Composable
 fun DetailsLayoutPreview() {
-    DetailsScreen.preview(
-        DetailsScreenState(
-            loadingState = LoadingState.SUCCESS,
-            title = stringResource(id = R.string.title_text),
-            publicationDate = Date(),
-            posterUrl = null,
-            description = stringResource(id = R.string.description_text),
-            onUpNavigation = {},
-            onRetry = {},
-            previewMode = true
+    RssReaderAppTheme(darkTheme = false) {
+        DetailsScreen.preview(
+            DetailsScreenState(
+                loadingState = LoadingState.SUCCESS,
+                title = stringResource(id = R.string.title_text),
+                publicationDate = Date(),
+                posterUrl = null,
+                description = stringResource(id = R.string.description_text),
+                onUpNavigation = {},
+                onRetry = {},
+                previewMode = true
+            )
         )
-    )
+    }
 }
 
 val DetailsScreen = composedViewFactory<DetailsScreenState> { state, _ ->
-    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
-        Column(horizontalGravity = Alignment.CenterHorizontally) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(stringResource(id = R.string.title_activity_details))
-                        },
-                        elevation = 4.dp,
-                        navigationIcon = {
-                            IconButton(onClick = state.onUpNavigation) {
-                                Icon(Icons.Filled.ArrowBack)
-                            }
+    Column(horizontalGravity = Alignment.CenterHorizontally) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(stringResource(id = R.string.title_activity_details))
+                    },
+                    elevation = 4.dp,
+                    backgroundColor = MaterialTheme.colors.primary,
+                    navigationIcon = {
+                        IconButton(onClick = state.onUpNavigation) {
+                            Icon(Icons.Filled.ArrowBack)
                         }
-                    )
-                }
+                    }
+                )
+            }
+        ) {
+            LceLayout(
+                loadingState = state.loadingState,
+                onRetry = state.onRetry
             ) {
-                LceLayout(
-                    loadingState = state.loadingState,
-                    onRetry = state.onRetry
-                ) {
-                    DetailsContentLayout(state)
-                }
+                DetailsContentLayout(state)
             }
         }
     }
@@ -157,8 +153,7 @@ fun LceLayout(
             LoadingState.LOADING -> {
                 CircularProgressIndicator(
                     modifier = Modifier.gravity(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                    color = colorResource(id = R.color.amber_A400)
+                        .padding(16.dp)
                 )
             }
             LoadingState.FAILURE -> {
