@@ -2,6 +2,4 @@
     <color name="primary">#FF9800</color>
     <color name="primary_dark">#F57C00</color>
     <color name="accent">#FFC107</color>
-    <color name="primary_text">#212121</color>
-    <color name="divider">#B6B6B6</color>
 </resources>
