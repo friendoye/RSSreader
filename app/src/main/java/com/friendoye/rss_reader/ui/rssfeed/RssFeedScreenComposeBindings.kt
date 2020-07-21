@@ -1,6 +1,7 @@
 package com.friendoye.rss_reader.ui.rssfeed
 
-import androidx.compose.Composable
+import android.widget.ImageView
+import androidx.compose.*
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContentScale
 import androidx.ui.core.Modifier
@@ -13,6 +14,10 @@ import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
+import androidx.ui.viewinterop.AndroidView
+import coil.Coil
+import coil.api.loadAny
+import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.ui.RssReaderAppTheme
 import com.friendoye.rss_reader.model.RssFeedItem
@@ -20,6 +25,7 @@ import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
+import com.friendoye.rss_reader.utils.compose.LegacyImage
 import com.friendoye.rss_reader.utils.compose.SwipeToRefreshLayout
 import com.squareup.workflow.ui.compose.composedViewFactory
 import com.squareup.workflow.ui.compose.tooling.preview
@@ -171,26 +177,32 @@ fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean
                 style = MaterialTheme.typography.caption
             )
 
-            if (previewMode) {
-                Image(
-                    asset = imageResource(id = R.drawable.image_post_placeholder),
-                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
-                        .constrainAs(posterImage) {
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                            end.linkTo(parent.end)
-                        },
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                CoilImage(
-                    data = item.imageUrl,
-                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
-                        .constrainAs(posterImage) {
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                            end.linkTo(parent.end)
-                        },
-                    contentScale = ContentScale.Crop
-                )
+            val imageViewModifier = Modifier.size(width = 120.dp, height = 80.dp)
+                .constrainAs(posterImage) {
+                    linkTo(top = parent.top, bottom = parent.bottom)
+                    end.linkTo(parent.end)
+                }
+            when {
+                previewMode -> {
+                    Image(
+                        asset = imageResource(id = R.drawable.image_post_placeholder),
+                        modifier = imageViewModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                FeatureFlags.USE_LEGACY_IMAGE -> {
+                    LegacyImage(
+                        data = item.imageUrl,
+                        modifier = imageViewModifier
+                    )
+                }
+                else -> {
+                    CoilImage(
+                        data = item.imageUrl,
+                        modifier = imageViewModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
     }
