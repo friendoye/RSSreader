@@ -26,10 +26,6 @@ fun LegacyImage(
 
     onCommit(data) {
         imageUpdater(data)
-
-        onDispose {
-            imageUpdater = emptyUpdater
-        }
     }
 
     AndroidView(
