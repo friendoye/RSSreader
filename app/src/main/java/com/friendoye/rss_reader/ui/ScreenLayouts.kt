@@ -12,7 +12,6 @@ import com.friendoye.rss_reader.ui.rssfeed.RssFeedScreen
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow
 import com.friendoye.rss_reader.ui.welcome.WelcomeScreen
 import com.github.zsoltk.compose.router.BackStack
-import com.squareup.workflow.diagnostic.SimpleLoggingDiagnosticListener
 import com.squareup.workflow.ui.ViewEnvironment
 import com.squareup.workflow.ui.ViewRegistry
 import com.squareup.workflow.ui.compose.WorkflowContainer
@@ -60,7 +59,9 @@ fun RssFeedScreenLayout(
         props = RssFeedWorkflow.Input(GlobalState.mSources),
         viewEnvironment = viewEnvironment,
         modifier = Modifier.fillMaxSize(),
-        diagnosticListener = SimpleLoggingDiagnosticListener(),
+        // BEWARE: Setting diagnosticListener like so will cause
+        // recreation of RssFeedWorkflow state from scratch
+        //diagnosticListener = SimpleLoggingDiagnosticListener(),
         onOutput = { output ->
             when (output) {
                 is RssFeedWorkflow.Output.NavigateToDetails -> {
