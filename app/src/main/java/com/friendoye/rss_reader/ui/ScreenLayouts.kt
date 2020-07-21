@@ -59,7 +59,7 @@ fun RssFeedScreenLayout(
     }
 
     WorkflowContainer(
-        workflow = DependenciesProvider.provideRssFeedWorkflow(),
+        workflow = DependenciesProvider.provideRssFeedWorkflowSingleton(),
         props = RssFeedWorkflow.Input(GlobalState.mSources),
         viewEnvironment = viewEnvironment,
         modifier = Modifier.fillMaxSize(),
