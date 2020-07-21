@@ -78,7 +78,7 @@ dependencies {
 
     implementation 'com.github.zsoltk:compose-router:0.13.1'
 
-    def accompanist_version = "0.1.6"
+    def accompanist_version = "0.1.7-SNAPSHOT"
     implementation "dev.chrisbanes.accompanist:accompanist-coil:$accompanist_version"
 
     // Image loader

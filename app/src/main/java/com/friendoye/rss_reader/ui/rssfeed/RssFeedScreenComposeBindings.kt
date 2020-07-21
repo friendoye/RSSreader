@@ -182,7 +182,6 @@ fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // TODO: Fix problem with image reloading
                 CoilImage(
                     data = item.imageUrl,
                     modifier = Modifier.size(width = 120.dp, height = 80.dp)
