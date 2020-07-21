@@ -54,9 +54,7 @@ fun RssFeedScreenLayout(
     var isDialogVisible by state { false }
     val legacyOpenPickSourcesDialogCallback = remember { legacyOpenPickSourcesDialog }
 
-    onActive {
-        updateSources()
-    }
+    refreshSourcesEffect()
 
     WorkflowContainer(
         workflow = DependenciesProvider.provideRssFeedWorkflowSingleton(),
