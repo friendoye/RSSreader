@@ -52,7 +52,6 @@ fun RssFeedScreenLayout(
     legacyOpenPickSourcesDialog: () -> Unit
 ) {
     var isDialogVisible by state { false }
-    val legacyOpenPickSourcesDialogCallback = remember { legacyOpenPickSourcesDialog }
 
     refreshSourcesEffect()
 
@@ -72,7 +71,7 @@ fun RssFeedScreenLayout(
                     if (FeatureFlags.USE_COMPOSE_DIALOGS) {
                         isDialogVisible = true
                     } else {
-                        legacyOpenPickSourcesDialogCallback()
+                        legacyOpenPickSourcesDialog()
                     }
                 }
             }
