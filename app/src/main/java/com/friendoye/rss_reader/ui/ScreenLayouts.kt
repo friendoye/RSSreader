@@ -23,8 +23,11 @@ internal val viewEnvironment = ViewEnvironment(viewRegistry)
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun WelcomeScreenLayout(backstack: BackStack<Screen>) {
+    val workflow = remember {
+        DependenciesProvider.provideWelcomeWorkflow()
+    }
     WorkflowContainer(
-        workflow = DependenciesProvider.provideWelcomeWorkflow(),
+        workflow = workflow,
         viewEnvironment = viewEnvironment,
         modifier = Modifier.fillMaxSize(),
         onOutput = { backstack.replace(Screen.RssFeed) }
@@ -34,10 +37,13 @@ fun WelcomeScreenLayout(backstack: BackStack<Screen>) {
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun RssItemDetailsScreenLayout(backstack: BackStack<Screen>, info: Screen.RssItemDetails) {
-    WorkflowContainer(
-        workflow = DependenciesProvider.provideDetailsWorkflow(
+    val workflow = remember {
+        DependenciesProvider.provideDetailsWorkflow(
             info.item
-        ),
+        )
+    }
+    WorkflowContainer(
+        workflow = workflow,
         viewEnvironment = viewEnvironment,
         modifier = Modifier.fillMaxSize(),
         onOutput = { backstack.pop() }
@@ -54,8 +60,12 @@ fun RssFeedScreenLayout(
 
     refreshSourcesEffect()
 
+    val workflow = remember {
+        DependenciesProvider.provideRssFeedWorkflow()
+    }
+
     WorkflowContainer(
-        workflow = DependenciesProvider.provideRssFeedWorkflowSingleton(),
+        workflow = workflow,
         props = RssFeedWorkflow.Input(GlobalState.mSources),
         viewEnvironment = viewEnvironment,
         modifier = Modifier.fillMaxSize(),

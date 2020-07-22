@@ -28,15 +28,11 @@ object DependenciesProvider {
     )
 
     @ExperimentalCoroutinesApi
-    private val RssFeedWorkflow by lazy {
-        RssFeedWorkflow(
-            getDownloadManager(),
-            getSourcesStore(),
-            getDatabaseHelper(),
-            getToastShower()
-        )
-    }
-    @ExperimentalCoroutinesApi
-    fun provideRssFeedWorkflowSingleton() = RssFeedWorkflow
+    fun provideRssFeedWorkflow() = RssFeedWorkflow(
+        getDownloadManager(),
+        getSourcesStore(),
+        getDatabaseHelper(),
+        getToastShower()
+    )
     fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(item)
 }
