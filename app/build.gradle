@@ -90,8 +90,8 @@ dependencies {
     implementation "androidx.ui:ui-tooling:$compose_version"
 
     // Jetpack Compose Routing
-    implementation 'com.zachklipp:compose-backstack:0.3.0'
     implementation 'com.github.zsoltk:compose-router:0.14.0'
+    implementation 'com.zachklipp:compose-backstack:0.4.0'
 
     def accompanist_version = "0.1.7-SNAPSHOT"
     implementation "dev.chrisbanes.accompanist:accompanist-coil:$accompanist_version"
