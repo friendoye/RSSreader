@@ -8,3 +8,11 @@ includeBuild('../workflow-kotlin-compose') {
         substitute module('com.squareup.workflow:workflow-ui-compose-tooling') with project(':compose-tooling')
     }
 }
+
+// Workaround to resolve all function and class references of Compose Backstack lib
+// TODO: Create issue
+includeBuild('../compose-backstack') {
+    dependencySubstitution {
+        substitute module('com.zachklipp:compose-backstack') with project(':compose-backstack')
+    }
+}
