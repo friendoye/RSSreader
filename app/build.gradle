@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion 29
@@ -23,9 +24,15 @@ android {
         }
     }
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-release.pro'
             signingConfig signingConfigs.release
         }
     }
