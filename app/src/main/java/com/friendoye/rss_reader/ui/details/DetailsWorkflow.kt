@@ -1,14 +1,9 @@
 package com.friendoye.rss_reader.ui.details
 
-import com.friendoye.rss_reader.database.DatabaseHelper
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.ui.details.DetailsWorkflow.InternalState
-import com.friendoye.rss_reader.ui.welcome.WelcomeScreenState
-import com.friendoye.rss_reader.utils.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState
-import com.friendoye.rss_reader.utils.RssSourcesStore
 import com.friendoye.rss_reader.workers.FetchFullRssItemInfoWorker
-import com.friendoye.rss_reader.workers.RefreshFeedWorker
 import com.gojuno.koptional.Optional
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.squareup.workflow.RenderContext

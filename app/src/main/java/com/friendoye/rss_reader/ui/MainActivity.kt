@@ -10,6 +10,7 @@ import androidx.transition.Transition
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.core.testTag
 import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -29,47 +30,17 @@ import kotlin.reflect.jvm.javaGetter
 
 
 @ExperimentalCoroutinesApi
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), LegacyDialogNavigation {
     private val backPressHandler = BackPressHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Providers(
-                AmbientBackPressHandler provides backPressHandler
-            ) {
-                RssReaderAppTheme {
-                    Router<Screen>(Screen.Welcome) { backstack ->
-                        var lastBackstackList by state<List<Screen>> { emptyList() }
-                        val currentTransition = remember(backstack.elements) {
-                            getTransitionBetweenScreensBackStacks(lastBackstackList, backstack.elements)
-                        }
-
-                        onCommit(backstack.elements) {
-                            lastBackstackList = backstack.elements
-                        }
-                        Backstack(
-                            backstack = backstack.elements,
-                            transition = currentTransition,
-                            animationBuilder = DefaultBackstackAnimation,
-                            modifier = Modifier.fillMaxSize()
-                        ) { currentScreen ->
-                            when (currentScreen) {
-                                Screen.Welcome -> WelcomeScreenLayout(backstack)
-                                Screen.RssFeed -> RssFeedScreenLayout(
-                                    backstack = backstack,
-                                    legacyOpenPickSourcesDialog = ::openPickSourcesDialog
-                                )
-                                is Screen.RssItemDetails -> RssItemDetailsScreenLayout(
-                                    backstack,
-                                    currentScreen
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            RssReaderApp(
+                backPressHandler = backPressHandler,
+                legacyNavigation = this
+            )
         }
     }
 
@@ -79,8 +50,53 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openPickSourcesDialog() {
+    override fun openPickSourcesDialog() {
         val newFragment: DialogFragment = SourcesListDialogFragment()
         newFragment.show(supportFragmentManager, "sourcePicker")
+    }
+}
+
+interface LegacyDialogNavigation {
+    fun openPickSourcesDialog()
+}
+
+@Composable
+fun RssReaderApp(
+    backPressHandler: BackPressHandler,
+    legacyNavigation: LegacyDialogNavigation
+) {
+    Providers(
+        AmbientBackPressHandler provides backPressHandler
+    ) {
+        RssReaderAppTheme {
+            Router<Screen>(Screen.Welcome) { backstack ->
+                var lastBackstackList by state<List<Screen>> { emptyList() }
+                val currentTransition = remember(backstack.elements) {
+                    getTransitionBetweenScreensBackStacks(lastBackstackList, backstack.elements)
+                }
+
+                onCommit(backstack.elements) {
+                    lastBackstackList = backstack.elements
+                }
+                Backstack(
+                    backstack = backstack.elements,
+                    transition = currentTransition,
+                    animationBuilder = DefaultBackstackAnimation,
+                    modifier = Modifier.fillMaxSize()
+                ) { currentScreen ->
+                    when (currentScreen) {
+                        Screen.Welcome -> WelcomeScreenLayout(backstack)
+                        Screen.RssFeed -> RssFeedScreenLayout(
+                            backstack = backstack,
+                            legacyOpenPickSourcesDialog = legacyNavigation::openPickSourcesDialog
+                        )
+                        is Screen.RssItemDetails -> RssItemDetailsScreenLayout(
+                            backstack,
+                            currentScreen
+                        )
+                    }
+                }
+            }
+        }
     }
 }

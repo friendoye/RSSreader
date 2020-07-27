@@ -1,6 +1,6 @@
 package com.friendoye.rss_reader.workers
 
-import com.friendoye.rss_reader.utils.DownloadManager
+import com.friendoye.rss_reader.domain.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState
 import com.squareup.workflow.Worker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -8,7 +8,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 
 @ExperimentalCoroutinesApi
 class RefreshFeedWorker(

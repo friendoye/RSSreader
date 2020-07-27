@@ -5,8 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 
+import com.friendoye.rss_reader.domain.AsyncTaskDownloadManager;
 import com.friendoye.rss_reader.utils.Config;
-import com.friendoye.rss_reader.utils.DownloadManager;
+import com.friendoye.rss_reader.domain.DownloadManager;
 import com.friendoye.rss_reader.utils.Packer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -17,7 +18,7 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
  * Application class of our app.
  */
 public class Application extends android.app.Application {
-    private static DownloadManager mDownloadManager;
+    private static AsyncTaskDownloadManager mDownloadManager;
     private static Application instance;
 
     @Override
@@ -26,7 +27,7 @@ public class Application extends android.app.Application {
         instance = this;
         initUIL();
         initDefaultSources();
-        mDownloadManager = new DownloadManager(this);
+        mDownloadManager = new AsyncTaskDownloadManager(this);
     }
 
     private void initUIL() {
@@ -61,7 +62,7 @@ public class Application extends android.app.Application {
         }
     }
 
-    public DownloadManager getDownloadManager() {
+    public AsyncTaskDownloadManager getDownloadManager() {
         return mDownloadManager;
     }
 
