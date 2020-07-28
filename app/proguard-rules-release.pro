@@ -15,14 +15,3 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--dontobfuscate
--dontoptimize
--verbose
-
--keepattributes InnerClasses
-
--keep class com.github.zsoltk.compose.router.BackStack { *; }
--keep class com.github.zsoltk.compose.router.BackStack { androidx.compose.frames.Record $record; }
-
--keep class androidx.compose.frames.Record
-

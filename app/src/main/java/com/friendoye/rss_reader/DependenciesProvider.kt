@@ -1,37 +1,41 @@
 package com.friendoye.rss_reader
 
-import com.friendoye.rss_reader.utils.RssSourcesStore
-import com.friendoye.rss_reader.database.DatabaseHelper
-import com.friendoye.rss_reader.database.DatabaseManager
+import com.friendoye.rss_reader.di.AndroidIntegrationDependencies
+import com.friendoye.rss_reader.di.IntegrationDependencies
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.ui.details.DetailsWorkflow
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow
 import com.friendoye.rss_reader.ui.welcome.WelcomeWorkflow
-import com.friendoye.rss_reader.utils.DownloadManager
-import com.friendoye.rss_reader.utils.ToastShower
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-object DependenciesProvider {
-    private val app = Application.getInstance()
+object DependenciesProvider : IntegrationDependencies {
+    var integrationDepsDelegate : IntegrationDependencies = AndroidIntegrationDependencies(
+        app = Application.getInstance()
+    )
 
-    fun getDownloadManager(): DownloadManager = app.downloadManager
-    fun getSourcesStore(): RssSourcesStore =
-        RssSourcesStore(app)
-    fun getDatabaseHelper() = DatabaseManager.getHelper(app, DatabaseHelper::class.java)
-    fun getToastShower() = ToastShower(app)
+    override fun getDownloadManager() = integrationDepsDelegate.getDownloadManager()
+    override fun getSourcesStore() = integrationDepsDelegate.getSourcesStore()
+    override fun getRssFeedItemsStore() = integrationDepsDelegate.getRssFeedItemsStore()
+    override fun getToastShower() = integrationDepsDelegate.getToastShower()
+    override fun getRssFeedItemDetailsFetcher() = integrationDepsDelegate.getRssFeedItemDetailsFetcher()
 
     @ExperimentalCoroutinesApi
     fun provideWelcomeWorkflow() = WelcomeWorkflow(
         getDownloadManager(),
         getSourcesStore(),
-        getDatabaseHelper()
+        getRssFeedItemsStore()
     )
+
     @ExperimentalCoroutinesApi
     fun provideRssFeedWorkflow() = RssFeedWorkflow(
         getDownloadManager(),
         getSourcesStore(),
-        getDatabaseHelper(),
+        getRssFeedItemsStore(),
         getToastShower()
     )
-    fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(item)
+
+    fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(
+        item,
+        getRssFeedItemDetailsFetcher()
+    )
 }

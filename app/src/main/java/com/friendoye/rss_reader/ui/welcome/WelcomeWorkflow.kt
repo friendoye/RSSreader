@@ -1,9 +1,9 @@
 package com.friendoye.rss_reader.ui.welcome
 
-import com.friendoye.rss_reader.workers.RefreshFeedWorker
-import com.friendoye.rss_reader.utils.RssSourcesStore
-import com.friendoye.rss_reader.database.DatabaseHelper
-import com.friendoye.rss_reader.utils.DownloadManager
+import com.friendoye.rss_reader.data.RssFeedItemsStore
+import com.friendoye.rss_reader.ui.shared.workers.RefreshFeedWorker
+import com.friendoye.rss_reader.data.RssSourcesStore
+import com.friendoye.rss_reader.domain.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState
 import com.squareup.workflow.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,7 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class WelcomeWorkflow(
     private val downloadManager: DownloadManager,
     private val sourcesStore: RssSourcesStore,
-    private var databaseHelper: DatabaseHelper
+    private var feedItemsStore: RssFeedItemsStore
 ) : StatefulWorkflow<Unit, LoadingState, Unit, WelcomeScreenState>() {
 
     companion object {
@@ -60,7 +60,7 @@ class WelcomeWorkflow(
     }
 
     private fun updateLoadingState(loadingState: LoadingState) = action("updateLoadingState") {
-        if (loadingState == LoadingState.FAILURE && databaseHelper.hasItems()) {
+        if (loadingState == LoadingState.FAILURE && feedItemsStore.hasItems()) {
             // If we failed to update RSS feed and we have some items in DB,
             // proceed to next screen to show cached feed.
             nextState = LoadingState.SUCCESS

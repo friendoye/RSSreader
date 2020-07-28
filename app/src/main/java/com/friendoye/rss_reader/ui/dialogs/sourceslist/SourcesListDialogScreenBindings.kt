@@ -8,13 +8,12 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
 import androidx.ui.layout.*
 import androidx.ui.material.Checkbox
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.res.stringResource
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.ui.RssReaderAppTheme
 import com.friendoye.rss_reader.domain.getActiveSources
 import com.friendoye.rss_reader.utils.compose.AlertDialogButtonLayout
 import com.friendoye.rss_reader.utils.compose.MultiChoiceAlertDialog
@@ -153,7 +152,7 @@ fun SourcesListDialogScreenPreview() {
 
     if (!isShowing) return
 
-    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+    RssReaderAppTheme(darkTheme = false) {
         SourcesListDialogScreen(
             sourceOptions = items,
             onApplySourceOptionsRequest = { newItems ->

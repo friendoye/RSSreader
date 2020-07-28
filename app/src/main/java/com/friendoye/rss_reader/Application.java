@@ -5,45 +5,24 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 
+import com.friendoye.rss_reader.domain.AsyncTaskDownloadManager;
 import com.friendoye.rss_reader.utils.Config;
-import com.friendoye.rss_reader.utils.DownloadManager;
+import com.friendoye.rss_reader.domain.DownloadManager;
 import com.friendoye.rss_reader.utils.Packer;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 /**
  * Application class of our app.
  */
 public class Application extends android.app.Application {
-    private static DownloadManager mDownloadManager;
+    private static AsyncTaskDownloadManager mDownloadManager;
     private static Application instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
-        initUIL();
         initDefaultSources();
-        mDownloadManager = new DownloadManager(this);
-    }
-
-    private void initUIL() {
-        DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
-                .cacheOnDisk(true)
-                .cacheInMemory(true)
-                .resetViewBeforeLoading(true)
-                .imageScaleType(ImageScaleType.EXACTLY)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .defaultDisplayImageOptions(displayOptions)
-                .denyCacheImageMultipleSizesInMemory()
-                .memoryCacheSize(50 * 1024 * 1024)
-                .memoryCacheSize(15 * 1024 * 1024)
-                .build();
-        ImageLoader.getInstance().init(config);
+        mDownloadManager = new AsyncTaskDownloadManager(this);
     }
 
     private void initDefaultSources() {
@@ -61,7 +40,7 @@ public class Application extends android.app.Application {
         }
     }
 
-    public DownloadManager getDownloadManager() {
+    public AsyncTaskDownloadManager getDownloadManager() {
         return mDownloadManager;
     }
 

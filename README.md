@@ -1,27 +1,29 @@
-Описание приложения:
-Приложение RSS reader:
-- Экран “Приветствия" с крутилкой загрузки данных(данные нужно грузить в отдельном потоке и сохранять в базу)
-- Экран со списком новостей из RSS feed. Можно брать любой фид - tut.by, onliner.by. В ячейке нужно отображать данные из базы:
-	- заголовок новости
-	- дата публикации
-	- иконка новости(если есть)
-- Экран "Детального описания новости”. 
-	- Заголовок
-	- Картинка
-	- Дата публикации
-	- Текст новости
-	- Каждый экран должен иметь заголовок(ActionBar)
+# RSSreader 2.0
 
-Цель проекта и требования - подтянуть/проверить знания по след. направлениям:
+Pet-project for playing around with state-of-the-art Android technologies. Basically, you can read aggregated news from Onliner.by and Tut.by.
 
-1. Работа с сетью
-2. Парсинг данных(XML, JSON). Нужно использовать Jackson
-3. Работа с базой данных. Нужно использовать OrmLite или похожую либу
-4. Работа с потоками
-5. Работа с основными элементами UI
-6. Работа с системой контроля версий - Git. Проект нужно разместить в открытом доступе на GitHub
-7. Загрука изображений. Нужно использовать Universal Image Loader
-8. Приложение должно быть совместимо с Android 2.2
-9. Для реализации ActionBar нужно использовать ActionBarSherlock
-10. Для реализации UI нужно использовать Fragments support v4
-11. Для дистрибуции приложения нужно использовать [Hockeyapp](http://hockeyapp.net/) либо похожие сервисы.
+Current tech stack:
+* [Kotlin]((https://api.bintray.com/packages/friendoye/maven/recyclerxray/images/download.svg))
+* [Jetpack Compose (dev-14)]():
+    * [Workflow Kotlin Compose](https://github.com/square/workflow-kotlin-compose)
+    * [Compose Router](https://github.com/zsoltk/compose-router)
+    * [Compose Backstack](https://github.com/zach-klippenstein/compose-backstack)
+    * [Accompanist for Coil](https://github.com/chrisbanes/accompanist/tree/main/coil)
+* [Workflow](https://github.com/square/workflow-kotlin)
+* [Coil](https://github.com/coil-kt/coil)
+* [OrmLite [from 1.0]](https://ormlite.com/sqlite_java_android_orm.shtml)
+* [Jsoup [from 1.0]](https://jsoup.org)
+
+## Setup
+
+In order to be able to build and install this app, you should place [Workflow Kotlin Compose](https://github.com/square/workflow-kotlin-compose) near your project and resolve dependencies conflicts. You may copy [this fork](https://github.com/friendoye/workflow-kotlin-compose/tree/nn/rss-reader-setup) to reduce amount of work for setup.
+
+## Is it worth using `Jetpack Compose`?
+
+Definitely no. For now. Nevertheless, I would say, that starting trying out it right now is not a bad idea.
+
+## Is it worth using `Workflow`?
+
+Right now `Workflow` is in alpha stage, but API will probably not be changed really prior to 1.0. I would recommend to try it out, if:
+* You building View-based app;
+* You have no plans to use it in conjuction with `Compose`.

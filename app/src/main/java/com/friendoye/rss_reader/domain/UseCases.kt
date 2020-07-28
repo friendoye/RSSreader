@@ -1,7 +1,6 @@
 package com.friendoye.rss_reader.domain
 
 import android.content.Context
-import androidx.compose.Composable
 import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.DependenciesProvider
 import com.friendoye.rss_reader.R
@@ -9,7 +8,7 @@ import com.friendoye.rss_reader.ui.GlobalState
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.DataKeeper
 import com.friendoye.rss_reader.utils.Packer
-import com.friendoye.rss_reader.utils.RssSourcesStore
+import com.friendoye.rss_reader.data.RssSourcesStore
 import java.util.*
 
 fun getActiveSources(context: Context = Application.getInstance()): Map<String, Boolean> {

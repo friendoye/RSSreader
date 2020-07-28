@@ -1,29 +1,31 @@
 package com.friendoye.rss_reader.ui.rssfeed
 
-import androidx.compose.Composable
+import android.widget.ImageView
+import androidx.compose.*
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContentScale
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.clickable
+import androidx.ui.foundation.*
 import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
 import androidx.ui.res.imageResource
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
-import com.friendoye.rss_reader.LIGHT_COLOR_PALETTE
+import androidx.ui.viewinterop.AndroidView
+import coil.Coil
+import coil.api.loadAny
+import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.R
+import com.friendoye.rss_reader.ui.RssReaderAppTheme
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem
 import com.friendoye.rss_reader.model.tutby.TutByFeedItem
 import com.friendoye.rss_reader.utils.Config
 import com.friendoye.rss_reader.utils.LoadingState
+import com.friendoye.rss_reader.utils.compose.LegacyImage
 import com.friendoye.rss_reader.utils.compose.SwipeToRefreshLayout
 import com.squareup.workflow.ui.compose.composedViewFactory
 import com.squareup.workflow.ui.compose.tooling.preview
@@ -67,7 +69,7 @@ private val sampleFeed: List<RssFeedItem> = listOf(
 @Preview(widthDp = 300, heightDp = 500)
 @Composable
 fun RssFeedLayoutPreview() {
-    MaterialTheme(colors = LIGHT_COLOR_PALETTE) {
+    RssReaderAppTheme(darkTheme = true) {
         RssFeedScreen.preview(
             RssFeedScreenState(
                 loadingState = LoadingState.NONE,
@@ -85,11 +87,13 @@ fun RssFeedLayoutPreview() {
 @Preview(widthDp = 420, heightDp = 108)
 @Composable
 fun RssFeedListItem() {
-    RssFeedListItem(
-        sampleFeed.first(),
-        {},
-        previewMode = true
-    )
+    RssReaderAppTheme(darkTheme = false) {
+        RssFeedListItem(
+            sampleFeed.first(),
+            {},
+            previewMode = true
+        )
+    }
 }
 
 val RssFeedScreen = composedViewFactory<RssFeedScreenState> { state, _ ->
@@ -100,6 +104,7 @@ val RssFeedScreen = composedViewFactory<RssFeedScreenState> { state, _ ->
                     // TODO: use string resource
                     title = { Text("RSS Feed") },
                     elevation = 4.dp,
+                    backgroundColor = MaterialTheme.colors.primary,
                     actions = {
                         IconButton(onClick = state.onPickRssSources) {
                             Icon(imageResource(R.drawable.ic_list_white_36dp))
@@ -137,7 +142,6 @@ fun RssFeedContentLayout(state: RssFeedScreenState) {
 @Composable
 fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean = false) {
     Surface(
-        color = Color.White,
         modifier = Modifier.height(108.dp).fillMaxWidth()
             .clickable(onClick = onClick, indication = null)
     ) {
@@ -173,27 +177,32 @@ fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean
                 style = MaterialTheme.typography.caption
             )
 
-            if (previewMode) {
-                Image(
-                    asset = imageResource(id = R.drawable.image_post_placeholder),
-                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
-                        .constrainAs(posterImage) {
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                            end.linkTo(parent.end)
-                        },
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                // TODO: Fix problem with image reloading
-                CoilImage(
-                    data = item.imageUrl,
-                    modifier = Modifier.size(width = 120.dp, height = 80.dp)
-                        .constrainAs(posterImage) {
-                            linkTo(top = parent.top, bottom = parent.bottom)
-                            end.linkTo(parent.end)
-                        },
-                    contentScale = ContentScale.Crop
-                )
+            val imageViewModifier = Modifier.size(width = 120.dp, height = 80.dp)
+                .constrainAs(posterImage) {
+                    linkTo(top = parent.top, bottom = parent.bottom)
+                    end.linkTo(parent.end)
+                }
+            when {
+                previewMode -> {
+                    Image(
+                        asset = imageResource(id = R.drawable.image_post_placeholder),
+                        modifier = imageViewModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                FeatureFlags.USE_LEGACY_IMAGE -> {
+                    LegacyImage(
+                        data = item.imageUrl,
+                        modifier = imageViewModifier
+                    )
+                }
+                else -> {
+                    CoilImage(
+                        data = item.imageUrl ?: "",
+                        modifier = imageViewModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
     }

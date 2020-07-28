@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.database;
+package com.friendoye.rss_reader.data.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.friendoye.rss_reader.R;
+import com.friendoye.rss_reader.data.RssFeedItemsStore;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem;
@@ -19,6 +20,8 @@ import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -27,7 +30,7 @@ import java.util.List;
 /**
  * Helper class for executing operation on database.
  */
-public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
+public class DatabaseHelper extends OrmLiteSqliteOpenHelper implements RssFeedItemsStore {
     public static final String SQL_EXCEPTION_TAG = "SQL Exception";
     public static final int MAX_TABLE_ITEMS_AMOUNT = 50;
 
@@ -70,7 +73,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public synchronized void addFeedItems(@NonNull List<RssFeedItem> items) {
+    @Override
+    public synchronized void addFeedItems(@NotNull List<? extends RssFeedItem> items) {
         RssFeedItem firstRetrItem = items.get(0);
         Class itemClass = firstRetrItem.getClass();
         RuntimeExceptionDao<RssFeedItem, Integer> dao = getRuntimeDao(itemClass);

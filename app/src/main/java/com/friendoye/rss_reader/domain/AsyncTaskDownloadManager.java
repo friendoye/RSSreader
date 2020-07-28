@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.utils;
+package com.friendoye.rss_reader.domain;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -6,11 +6,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.friendoye.rss_reader.database.DatabaseHelper;
-import com.friendoye.rss_reader.database.DatabaseManager;
+import com.friendoye.rss_reader.data.database.DatabaseHelper;
+import com.friendoye.rss_reader.data.database.DatabaseManager;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.RssParser;
+import com.friendoye.rss_reader.utils.LoadingState;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -21,31 +22,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
-public class DownloadManager {
+public class AsyncTaskDownloadManager implements DownloadManager {
     private LoadingState mState;
     private RefreshTask mTask;
     private Context mContext;
 
     private ArrayList<OnDownloadStateChangedListener> observers;
 
-    public interface OnDownloadStateChangedListener {
-        void onDownloadStateChanged(LoadingState state);
-    }
-
-    public DownloadManager(Context context) {
+    public AsyncTaskDownloadManager(Context context) {
         mContext = context;
         mState = LoadingState.NONE;
         observers = new ArrayList<>();
     }
 
+    @Override
     @NonNull
     public synchronized LoadingState getState() {
         return mState;
     }
 
+    @Override
     public synchronized void refreshData(List<String> sources) {
         if (mState != LoadingState.LOADING) {
             mTask = new RefreshTask(mContext, sources);
@@ -67,11 +63,13 @@ public class DownloadManager {
         }
     }
 
+    @Override
     public void subscribe(OnDownloadStateChangedListener observer) {
         observers.add(observer);
         observer.onDownloadStateChanged(mState); //?
     }
 
+    @Override
     public void unsubscribe(OnDownloadStateChangedListener observer) {
         boolean flag = observers.remove(observer);
         Log.i("DownloadManager","Unsubbscribe: " + flag);
@@ -102,6 +100,7 @@ public class DownloadManager {
                 e.printStackTrace();
             }
             try {
+                // TODO: Move as dependency
                 DatabaseHelper databaseHelper = DatabaseManager
                         .getHelper(mContext, DatabaseHelper.class);
 

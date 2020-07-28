@@ -1,17 +1,16 @@
 package com.friendoye.rss_reader.ui.rssfeed
 
-import com.friendoye.rss_reader.FeatureFlags
-import com.friendoye.rss_reader.database.DatabaseHelper
+import com.friendoye.rss_reader.data.RssFeedItemsStore
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Input
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output.NavigateToDetails
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow.Output.NavigateToSourcesListDialog
-import com.friendoye.rss_reader.utils.DownloadManager
+import com.friendoye.rss_reader.domain.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState
-import com.friendoye.rss_reader.utils.RssSourcesStore
-import com.friendoye.rss_reader.utils.ToastShower
-import com.friendoye.rss_reader.workers.RefreshFeedWorker
+import com.friendoye.rss_reader.data.RssSourcesStore
+import com.friendoye.rss_reader.ui.ToastShower
+import com.friendoye.rss_reader.ui.shared.workers.RefreshFeedWorker
 import com.squareup.workflow.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -19,7 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class RssFeedWorkflow(
     private val downloadManager: DownloadManager,
     private val sourcesStore: RssSourcesStore,
-    private val databaseHelper: DatabaseHelper,
+    private var feedItemsStore: RssFeedItemsStore,
     private val toastShower: ToastShower
 ) : StatefulWorkflow<Input, RssFeedWorkflow.InternalState, Output, RssFeedScreenState>() {
 
@@ -43,13 +42,13 @@ class RssFeedWorkflow(
     override fun initialState(props: Input, snapshot: Snapshot?): InternalState {
         return InternalState(
             loadingState = LoadingState.SUCCESS,
-            rssFeedItems = databaseHelper.getAllFeedItems(props.sources) ?: emptyList()
+            rssFeedItems = feedItemsStore.getAllFeedItems(props.sources) ?: emptyList()
         )
     }
 
     override fun onPropsChanged(old: Input, new: Input, state: InternalState): InternalState {
         return state.copy(
-            rssFeedItems = databaseHelper.getAllFeedItems(new.sources) ?: emptyList()
+            rssFeedItems = feedItemsStore.getAllFeedItems(new.sources) ?: emptyList()
         )
     }
 
@@ -116,7 +115,7 @@ class RssFeedWorkflow(
                 loadingState
             },
             rssFeedItems = if (loadingState == LoadingState.SUCCESS) {
-                databaseHelper.getAllFeedItems(sources) ?: emptyList()
+                feedItemsStore.getAllFeedItems(sources) ?: emptyList()
             } else {
                 nextState.rssFeedItems
             }
