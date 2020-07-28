@@ -1,10 +1,10 @@
 # RSSreader 2.0
 
-Pet-project for playing around with state-of-the-art Android technologies. Basically, you can read aggregated news from Onliner.by and Tut.by.
+Pet-project for playing around with state-of-the-art Android technologies. Basically, you can read aggregated news from [Onliner.by](https://www.onliner.by) and [Tut.by](https://www.tut.by).
 
 Current tech stack:
-* [Kotlin]((https://api.bintray.com/packages/friendoye/maven/recyclerxray/images/download.svg))
-* [Jetpack Compose (dev-14)]():
+* [Kotlin](https://github.com/JetBrains/kotlin/releases/tag/v1.3.72)
+* [Jetpack Compose (dev-14)](https://developer.android.com/jetpack/androidx/releases/compose#0.1.0-dev14):
     * [Workflow Kotlin Compose](https://github.com/square/workflow-kotlin-compose)
     * [Compose Router](https://github.com/zsoltk/compose-router)
     * [Compose Backstack](https://github.com/zach-klippenstein/compose-backstack)
@@ -26,4 +26,4 @@ Definitely no. For now. Nevertheless, I would say, that starting trying out it r
 
 Right now `Workflow` is in alpha stage, but API will probably not be changed really prior to 1.0. I would recommend to try it out, if:
 * You building View-based app;
-* You have no plans to use it in conjuction with `Compose`.
+* You have no plans to use it in conjuction with `Jetpack Compose`.
