@@ -115,7 +115,6 @@ dependencies {
     implementation "dev.chrisbanes.accompanist:accompanist-coil:$accompanist_version"
 
     // Image loader
-    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     implementation "io.coil-kt:coil:0.11.0"
 
     // Workflows

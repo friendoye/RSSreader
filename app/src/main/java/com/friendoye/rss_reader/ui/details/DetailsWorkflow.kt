@@ -6,7 +6,6 @@ import com.friendoye.rss_reader.ui.details.DetailsWorkflow.InternalState
 import com.friendoye.rss_reader.utils.LoadingState
 import com.friendoye.rss_reader.ui.shared.workers.FetchFullRssItemInfoWorker
 import com.gojuno.koptional.Optional
-import com.nostra13.universalimageloader.core.ImageLoader
 import com.squareup.workflow.RenderContext
 import com.squareup.workflow.Snapshot
 import com.squareup.workflow.StatefulWorkflow
@@ -88,11 +87,7 @@ class DetailsWorkflow(
         } else {
             rssFeedItem.apply {
                 description = result.description
-                largeImage = if (result.largeImage != null) {
-                    result.largeImage
-                } else {
-                    ImageLoader.getInstance().loadImageSync(rssFeedItem.imageUrl)
-                }
+                largeImage = result.largeImage
             }
             nextState = InternalState(
                 loadingState = LoadingState.SUCCESS,
