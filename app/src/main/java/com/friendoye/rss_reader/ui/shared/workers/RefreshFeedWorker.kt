@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.workers
+package com.friendoye.rss_reader.ui.shared.workers
 
 import com.friendoye.rss_reader.domain.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState

@@ -9,7 +9,7 @@ import androidx.ui.viewinterop.AndroidView
 import coil.api.loadAny
 import com.friendoye.rss_reader.R
 
-private val emptyUpdater: (Any) -> Unit = {}
+private val emptyUpdater: (Any?) -> Unit = {}
 
 /**
  * Using compatibility mode (@see AndroidView), LegacyImage allows you
@@ -19,7 +19,7 @@ private val emptyUpdater: (Any) -> Unit = {}
  */
 @Composable
 fun LegacyImage(
-    data: Any,
+    data: Any?,
     modifier: Modifier
 ) {
     var imageUpdater by state { emptyUpdater }

@@ -8,12 +8,12 @@ import androidx.ui.core.ContextAmbient
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.zachklipp.compose.backstack.BackstackTransition
 
-sealed class Screen {
-    object Welcome : Screen()
-    object RssFeed : Screen()
+sealed class Screen(val tag: String) {
+    object Welcome : Screen("Welcome")
+    object RssFeed : Screen("RssFeed")
     data class RssItemDetails(
         val item: RssFeedItem
-    ) : Screen()
+    ) : Screen("RssItemDetails[itemId=${item.id}]")
 }
 
 @Stable

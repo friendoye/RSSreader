@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.database;
+package com.friendoye.rss_reader.data.database;
 
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.onliner.OnlinerFeedItem;

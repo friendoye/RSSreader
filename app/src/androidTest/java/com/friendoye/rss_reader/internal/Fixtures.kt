@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader
+package com.friendoye.rss_reader.internal
 
 val TEST_SOURCES = listOf("Test 1", "Test 2")
 
@@ -17,3 +17,7 @@ val TEST_2_RSS_FEED = listOf(
     TestFeedItem(id = 23, title = "Test 23", link = "Link 23", source = "Test 2"),
     TestFeedItem(id = 24, title = "Test 24", link = "Link 24", source = "Test 2")
 )
+
+val TEST_RSS_FEED = TEST_1_RSS_FEED + TEST_2_RSS_FEED
+
+const val FAKE_FEED_ITEM_DESCRIPTION = "Test Description"

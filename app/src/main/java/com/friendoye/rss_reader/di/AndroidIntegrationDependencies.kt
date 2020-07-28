@@ -1,9 +1,11 @@
-package com.friendoye.rss_reader
+package com.friendoye.rss_reader.di
 
+import com.friendoye.rss_reader.Application
 import com.friendoye.rss_reader.data.SharedPreferencesRssSourcesStore
-import com.friendoye.rss_reader.database.DatabaseHelper
-import com.friendoye.rss_reader.database.DatabaseManager
+import com.friendoye.rss_reader.data.database.DatabaseHelper
+import com.friendoye.rss_reader.data.database.DatabaseManager
 import com.friendoye.rss_reader.domain.DownloadManager
+import com.friendoye.rss_reader.domain.RealRssFeedItemDetailsFetcher
 import com.friendoye.rss_reader.utils.RealToastShower
 
 class AndroidIntegrationDependencies(
@@ -16,4 +18,5 @@ class AndroidIntegrationDependencies(
     override fun getSourcesStore() = rssSourcesStore
     override fun getRssFeedItemsStore() = rssFeedItemsStore
     override fun getToastShower() = RealToastShower(app)
+    override fun getRssFeedItemDetailsFetcher() = RealRssFeedItemDetailsFetcher()
 }

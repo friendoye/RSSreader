@@ -1,7 +1,7 @@
 package com.friendoye.rss_reader.ui.welcome
 
 import com.friendoye.rss_reader.data.RssFeedItemsStore
-import com.friendoye.rss_reader.workers.RefreshFeedWorker
+import com.friendoye.rss_reader.ui.shared.workers.RefreshFeedWorker
 import com.friendoye.rss_reader.data.RssSourcesStore
 import com.friendoye.rss_reader.domain.DownloadManager
 import com.friendoye.rss_reader.utils.LoadingState

@@ -3,6 +3,7 @@ package com.friendoye.rss_reader.ui.welcome
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.ui.unit.TextUnit
 import androidx.ui.unit.dp
 import com.friendoye.rss_reader.R
 import com.friendoye.rss_reader.ui.RssReaderAppTheme
+import com.friendoye.rss_reader.ui.Screen
 import com.friendoye.rss_reader.utils.LoadingState
 import com.squareup.workflow.ui.compose.composedViewFactory
 import com.squareup.workflow.ui.compose.tooling.preview

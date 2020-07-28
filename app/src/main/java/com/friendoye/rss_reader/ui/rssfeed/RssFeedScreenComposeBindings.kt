@@ -198,7 +198,7 @@ fun RssFeedListItem(item: RssFeedItem, onClick: () -> Unit, previewMode: Boolean
                 }
                 else -> {
                     CoilImage(
-                        data = item.imageUrl,
+                        data = item.imageUrl ?: "",
                         modifier = imageViewModifier,
                         contentScale = ContentScale.Crop
                     )

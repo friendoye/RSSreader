@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader
+package com.friendoye.rss_reader.internal
 
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.j256.ormlite.field.DatabaseField

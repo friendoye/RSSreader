@@ -6,8 +6,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.friendoye.rss_reader.database.DatabaseHelper;
-import com.friendoye.rss_reader.database.DatabaseManager;
+import com.friendoye.rss_reader.data.database.DatabaseHelper;
+import com.friendoye.rss_reader.data.database.DatabaseManager;
 import com.friendoye.rss_reader.model.AbstractRssSourceFactory;
 import com.friendoye.rss_reader.model.RssFeedItem;
 import com.friendoye.rss_reader.model.RssParser;

@@ -1,59 +1,81 @@
 package com.friendoye.rss_reader
 
-import android.util.Log
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.test.assertIsDisplayed
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.doClick
-import androidx.ui.test.findByText
-import com.friendoye.rss_reader.ui.LegacyDialogNavigation
-import com.friendoye.rss_reader.ui.RssReaderApp
+import androidx.ui.test.*
+import com.friendoye.rss_reader.internal.StubIntegrationDependencies
+import com.friendoye.rss_reader.ui.*
+import com.friendoye.rss_reader.internal.FAKE_FEED_ITEM_DESCRIPTION
+import com.friendoye.rss_reader.internal.TEST_RSS_FEED
+import com.friendoye.rss_reader.internal.TEST_SOURCES
+import com.friendoye.rss_reader.utils.awaitForComposeFinder
 import com.github.zsoltk.compose.backpress.BackPressHandler
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class RssReaderUiTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private lateinit var backPressHandler: BackPressHandler
+    private lateinit var legacyNavigation: LegacyDialogNavigation
+
     @Before
     fun setUp() {
         DependenciesProvider.integrationDepsDelegate = StubIntegrationDependencies(
             allSources = TEST_SOURCES,
-            downloadManagerSuccessFeedItems = TEST_1_RSS_FEED + TEST_2_RSS_FEED
+            downloadManagerSuccessFeedItems = TEST_RSS_FEED,
+            defaultRssFeedItemDescription = FAKE_FEED_ITEM_DESCRIPTION
         )
-    }
 
-    @Test
-    fun appNavigationToDetailsScreen() {
-        val backPressHandler = BackPressHandler()
-        val legacyNavigation = object : LegacyDialogNavigation {
+        backPressHandler = BackPressHandler()
+        legacyNavigation = object : LegacyDialogNavigation {
             override fun openPickSourcesDialog() {
                 // No-op
             }
         }
-        println("Here 1")
+
         composeTestRule.setContent {
+            GlobalState.mSources = DependenciesProvider.getSourcesStore().getActiveSources()
             RssReaderApp(
-                backPressHandler = backPressHandler, //?
+                backPressHandler = backPressHandler,
                 legacyNavigation = legacyNavigation
             )
         }
-        println("Here 2")
-        Thread.sleep(15000)
-        println("Here 4")
+    }
+
+    @Test(timeout = 5000L)
+    fun appNavigationToRssFeedScreen() {
+        awaitForComposeFinder {
+            findByTag(Screen.RssFeed.tag).assertExists("Not found.")
+        }
         findByText("Test 11")
             .assertExists("No RSS feed item found.")
+    }
+
+    @Test(timeout = 8000L)
+    fun appNavigationToDetailsScreen() {
+        awaitForComposeFinder {
+            findByTag(Screen.RssFeed.tag).assertExists("Not found.")
+        }
+
+        findByText("Test 11")
+            .assertExists("No RSS feed item found.")
+            .doClick()
+
+        val feedItem = TEST_RSS_FEED.first { it.title == "Test 11" }
+        awaitForComposeFinder {
+            findByTag(Screen.RssItemDetails(feedItem).tag).assertExists("Not found.")
+        }
+
+        findByText(FAKE_FEED_ITEM_DESCRIPTION)
+            .assertExists("No description view for feed item with \"${feedItem.title}\" title found.")
     }
 }

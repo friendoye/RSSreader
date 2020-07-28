@@ -2,15 +2,18 @@ package com.friendoye.rss_reader.ui
 
 import androidx.compose.*
 import androidx.ui.core.Modifier
+import androidx.ui.core.testTag
 import androidx.ui.layout.fillMaxSize
 import com.friendoye.rss_reader.DependenciesProvider
 import com.friendoye.rss_reader.FeatureFlags
 import com.friendoye.rss_reader.domain.updateSources
+import com.friendoye.rss_reader.ui.Screen.Welcome
 import com.friendoye.rss_reader.ui.details.DetailsScreen
 import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogScreenLayout
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedScreen
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow
 import com.friendoye.rss_reader.ui.welcome.WelcomeScreen
+import com.friendoye.rss_reader.utils.compose.testTag
 import com.github.zsoltk.compose.router.BackStack
 import com.squareup.workflow.ui.ViewEnvironment
 import com.squareup.workflow.ui.ViewRegistry
@@ -22,21 +25,28 @@ internal val viewEnvironment = ViewEnvironment(viewRegistry)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun WelcomeScreenLayout(backstack: BackStack<Screen>) {
+fun WelcomeScreenLayout(
+    backstack: BackStack<Screen>,
+    modifier: Modifier = Modifier
+) {
     val workflow = remember {
         DependenciesProvider.provideWelcomeWorkflow()
     }
     WorkflowContainer(
         workflow = workflow,
         viewEnvironment = viewEnvironment,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier + Modifier.fillMaxSize(),
         onOutput = { backstack.replace(Screen.RssFeed) }
     )
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun RssItemDetailsScreenLayout(backstack: BackStack<Screen>, info: Screen.RssItemDetails) {
+fun RssItemDetailsScreenLayout(
+    backstack: BackStack<Screen>,
+    info: Screen.RssItemDetails,
+    modifier: Modifier = Modifier
+) {
     val workflow = remember {
         DependenciesProvider.provideDetailsWorkflow(
             info.item
@@ -45,7 +55,7 @@ fun RssItemDetailsScreenLayout(backstack: BackStack<Screen>, info: Screen.RssIte
     WorkflowContainer(
         workflow = workflow,
         viewEnvironment = viewEnvironment,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier + Modifier.fillMaxSize(),
         onOutput = { backstack.pop() }
     )
 }
@@ -54,7 +64,8 @@ fun RssItemDetailsScreenLayout(backstack: BackStack<Screen>, info: Screen.RssIte
 @Composable
 fun RssFeedScreenLayout(
     backstack: BackStack<Screen>,
-    legacyOpenPickSourcesDialog: () -> Unit
+    legacyOpenPickSourcesDialog: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var isDialogVisible by state { false }
 
@@ -68,7 +79,7 @@ fun RssFeedScreenLayout(
         workflow = workflow,
         props = RssFeedWorkflow.Input(GlobalState.mSources),
         viewEnvironment = viewEnvironment,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier + Modifier.fillMaxSize(),
         // BEWARE: Setting diagnosticListener like so will cause
         // recreation of RssFeedWorkflow state from scratch
         //diagnosticListener = SimpleLoggingDiagnosticListener(),

@@ -16,6 +16,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.dp
 import com.friendoye.rss_reader.ui.dialogs.sourceslist.SourcesListDialogFragment
+import com.friendoye.rss_reader.utils.compose.testTag
 import com.friendoye.rss_reader.utils.elements
 import com.github.zsoltk.compose.backpress.AmbientBackPressHandler
 import com.github.zsoltk.compose.backpress.BackPressHandler
@@ -85,14 +86,19 @@ fun RssReaderApp(
                     modifier = Modifier.fillMaxSize()
                 ) { currentScreen ->
                     when (currentScreen) {
-                        Screen.Welcome -> WelcomeScreenLayout(backstack)
+                        Screen.Welcome -> WelcomeScreenLayout(
+                            backstack = backstack,
+                            modifier = Modifier.testTag(currentScreen.tag)
+                        )
                         Screen.RssFeed -> RssFeedScreenLayout(
                             backstack = backstack,
-                            legacyOpenPickSourcesDialog = legacyNavigation::openPickSourcesDialog
+                            legacyOpenPickSourcesDialog = legacyNavigation::openPickSourcesDialog,
+                            modifier = Modifier.testTag(currentScreen.tag)
                         )
                         is Screen.RssItemDetails -> RssItemDetailsScreenLayout(
-                            backstack,
-                            currentScreen
+                            backstack = backstack,
+                            info = currentScreen,
+                            modifier = Modifier.testTag(currentScreen.tag)
                         )
                     }
                 }

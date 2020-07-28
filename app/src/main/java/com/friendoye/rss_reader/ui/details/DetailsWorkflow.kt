@@ -1,9 +1,10 @@
 package com.friendoye.rss_reader.ui.details
 
+import com.friendoye.rss_reader.domain.RssFeedItemDetailsFetcher
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.ui.details.DetailsWorkflow.InternalState
 import com.friendoye.rss_reader.utils.LoadingState
-import com.friendoye.rss_reader.workers.FetchFullRssItemInfoWorker
+import com.friendoye.rss_reader.ui.shared.workers.FetchFullRssItemInfoWorker
 import com.gojuno.koptional.Optional
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.squareup.workflow.RenderContext
@@ -11,10 +12,11 @@ import com.squareup.workflow.Snapshot
 import com.squareup.workflow.StatefulWorkflow
 import com.squareup.workflow.Worker
 import com.squareup.workflow.*
-import com.friendoye.rss_reader.workers.FetchFullRssItemInfoWorker.Result as FetchFullInfoResult
+import com.friendoye.rss_reader.ui.shared.workers.FetchFullRssItemInfoWorker.Result as FetchFullInfoResult
 
 class DetailsWorkflow(
-    private val rssFeedItem: RssFeedItem
+    private val rssFeedItem: RssFeedItem,
+    private val detailsFetcher: RssFeedItemDetailsFetcher
 ) : StatefulWorkflow<Unit, InternalState, Unit, DetailsScreenState>() {
 
     companion object {
@@ -65,7 +67,7 @@ class DetailsWorkflow(
     override fun snapshotState(state: InternalState): Snapshot = Snapshot.EMPTY
 
     private fun fetchFullRssItemInfoWorker(): Worker<Optional<FetchFullInfoResult>> {
-        return FetchFullRssItemInfoWorker(rssFeedItem)
+        return FetchFullRssItemInfoWorker(rssFeedItem, detailsFetcher)
     }
 
     private fun navigateUp() = action("navigateUp") {

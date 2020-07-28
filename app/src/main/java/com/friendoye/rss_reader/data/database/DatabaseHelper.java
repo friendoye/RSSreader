@@ -1,4 +1,4 @@
-package com.friendoye.rss_reader.database;
+package com.friendoye.rss_reader.data.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

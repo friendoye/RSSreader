@@ -1,14 +1,11 @@
 package com.friendoye.rss_reader
 
-import com.friendoye.rss_reader.data.SharedPreferencesRssSourcesStore
-import com.friendoye.rss_reader.database.DatabaseHelper
-import com.friendoye.rss_reader.database.DatabaseManager
+import com.friendoye.rss_reader.di.AndroidIntegrationDependencies
+import com.friendoye.rss_reader.di.IntegrationDependencies
 import com.friendoye.rss_reader.model.RssFeedItem
 import com.friendoye.rss_reader.ui.details.DetailsWorkflow
 import com.friendoye.rss_reader.ui.rssfeed.RssFeedWorkflow
 import com.friendoye.rss_reader.ui.welcome.WelcomeWorkflow
-import com.friendoye.rss_reader.domain.DownloadManager
-import com.friendoye.rss_reader.utils.RealToastShower
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 object DependenciesProvider : IntegrationDependencies {
@@ -20,6 +17,7 @@ object DependenciesProvider : IntegrationDependencies {
     override fun getSourcesStore() = integrationDepsDelegate.getSourcesStore()
     override fun getRssFeedItemsStore() = integrationDepsDelegate.getRssFeedItemsStore()
     override fun getToastShower() = integrationDepsDelegate.getToastShower()
+    override fun getRssFeedItemDetailsFetcher() = integrationDepsDelegate.getRssFeedItemDetailsFetcher()
 
     @ExperimentalCoroutinesApi
     fun provideWelcomeWorkflow() = WelcomeWorkflow(
@@ -35,5 +33,9 @@ object DependenciesProvider : IntegrationDependencies {
         getRssFeedItemsStore(),
         getToastShower()
     )
-    fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(item)
+
+    fun provideDetailsWorkflow(item: RssFeedItem) = DetailsWorkflow(
+        item,
+        getRssFeedItemDetailsFetcher()
+    )
 }
