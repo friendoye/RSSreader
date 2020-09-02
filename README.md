@@ -1,4 +1,4 @@
-# RSSreader 2.0
+# RSSreader 2.0 [WIP: Migration in progress]
 
 Pet-project for playing around with state-of-the-art Android technologies. Basically, you can read aggregated news from [Onliner.by](https://www.onliner.by) and [Tut.by](https://www.tut.by).
 
